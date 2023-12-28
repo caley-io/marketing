@@ -95,7 +95,8 @@
     "zod": "^3.22.4",
     "prisma": "^5.6.0",
     "tsconfig": "workspace:*",
-    "autoprefixer": "10.4.16"
+    "autoprefixer": "10.4.16",
+    "@types/react": "18.2.46"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "^0.2.0",
@@ -108,7 +109,6 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "20.9.3",
     "@types/nodemailer": "^6.4.14",
-    "@types/react": "18.2.46",
     "@types/react-dom": "18.2.18",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.7.0",
