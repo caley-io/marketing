@@ -103,7 +103,9 @@ export function ActionCell<T extends Row>(props: {
         <Button
           size="sm"
           variant={
-            item.status === NewsletterStatus.UNSUBSCRIBED ? "red" : "secondary"
+            item.status === NewsletterStatus.UNSUBSCRIBED
+              ? "destructive"
+              : "default"
           }
           disabled={!item.lastUnsubscribeLink}
           asChild={!!item.lastUnsubscribeLink}
@@ -165,7 +167,7 @@ export function ActionCell<T extends Row>(props: {
             variant={
               item.status === NewsletterStatus.AUTO_ARCHIVED ||
               item.autoArchived
-                ? "blue"
+                ? "ghost"
                 : "secondary"
             }
             className="px-3 shadow-none"
@@ -204,7 +206,7 @@ export function ActionCell<T extends Row>(props: {
                 variant={
                   item.status === NewsletterStatus.AUTO_ARCHIVED ||
                   item.autoArchived
-                    ? "blue"
+                    ? "ghost"
                     : "secondary"
                 }
                 className="px-2 shadow-none"
@@ -295,7 +297,7 @@ export function ActionCell<T extends Row>(props: {
         <Button
           size="sm"
           variant={
-            item.status === NewsletterStatus.APPROVED ? "green" : "secondary"
+            item.status === NewsletterStatus.APPROVED ? "ghost" : "secondary"
           }
           onClick={async () => {
             setApproveLoading(true);
