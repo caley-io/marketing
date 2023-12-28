@@ -636,9 +636,7 @@ function TestRulesContentRow(props: {
     <div className="border-b border-gray-200">
       <div className="flex items-center justify-between py-4">
         <div className="min-w-0 break-words">
-          <MessageText className="font-bold">
-            {message.parsedMessage.headers.subject}
-          </MessageText>
+          <MessageText className="font-bold">{message.subject}</MessageText>
           <MessageText className="mt-1">{message.snippet?.trim()}</MessageText>
         </div>
         <div className="ml-4">
@@ -648,7 +646,7 @@ function TestRulesContentRow(props: {
             onClick={async () => {
               setPlanning(true);
 
-              if (!message.parsedMessage.textPlain) {
+              if (!message.text) {
                 toastError({
                   description: `Unable to plan email. No plain text found.`,
                 });
@@ -659,20 +657,19 @@ function TestRulesContentRow(props: {
                 "/api/ai/act",
                 {
                   email: {
-                    from: message.parsedMessage.headers.from,
-                    to: message.parsedMessage.headers.to,
-                    date: message.parsedMessage.headers.date,
-                    replyTo: message.parsedMessage.headers.replyTo,
-                    cc: message.parsedMessage.headers.cc,
-                    subject: message.parsedMessage.headers.subject,
-                    textPlain: message.parsedMessage.textPlain || null,
-                    textHtml: message.parsedMessage.textHtml || null,
+                    from: message.email,
+                    to: message.to,
+                    date: message.date,
+                    replyTo: message.email,
+                    cc: "",
+                    subject: message.subject,
+                    textPlain: message.text || null,
+                    textHtml: message.text || null,
                     snippet: message.snippet || null,
-                    threadId: message.threadId || "",
+                    threadId: "",
                     messageId: message.id || "",
-                    headerMessageId:
-                      message.parsedMessage.headers.messageId || "",
-                    references: message.parsedMessage.headers.references,
+                    headerMessageId: message.id || "",
+                    references: "",
                   },
                   allowExecute: false,
                 },
