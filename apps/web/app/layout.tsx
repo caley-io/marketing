@@ -21,9 +21,8 @@ const calFont = localFont({
   display: "swap",
 });
 
-const title = "Inbox Zero";
-const description =
-  "The quickest way to inbox zero. Inbox Zero is your virtual assistant for emails.";
+const title = "Maily.ai";
+const description = "Email, but smart and beautiful.";
 
 export const metadata: Metadata = {
   title,
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title,
     description,
-    creator: "@getinboxzero",
+    creator: "@geekpreneur_",
   },
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
 };

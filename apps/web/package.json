@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "jest --watch --detectOpenHandles",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@auth/core": "^0.18.4",
