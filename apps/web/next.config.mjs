@@ -1,5 +1,4 @@
 import { withSentryConfig } from "@sentry/nextjs";
-import { withContentlayer } from "next-contentlayer";
 import { env } from "./env.mjs";
 
 /** @type {import('next').NextConfig} */
@@ -104,11 +103,7 @@ const sentryConfig = {
 
 const exportConfig =
   env.NEXT_PUBLIC_SENTRY_DSN && env.SENTRY_ORGANIZATION && env.SENTRY_PROJECT
-    ? withSentryConfig(
-        withContentlayer(nextConfig),
-        sentryOptions,
-        sentryConfig,
-      )
-    : withContentlayer(nextConfig);
+    ? withSentryConfig(nextConfig, sentryOptions, sentryConfig)
+    : nextConfig;
 
 export default exportConfig;

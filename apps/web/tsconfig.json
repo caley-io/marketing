@@ -4,8 +4,7 @@
     "baseUrl": ".",
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./*"],
-      "contentlayer/generated": ["./.contentlayer/generated"]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -13,7 +12,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".contentlayer/generated",
     "./env.mjs"
   ],
   "exclude": ["node_modules"]
