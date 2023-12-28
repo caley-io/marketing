@@ -95,7 +95,8 @@
     "typescript": "5.3.2",
     "usehooks-ts": "^2.9.1",
     "zod": "^3.22.4",
-    "prisma": "^5.6.0"
+    "prisma": "^5.6.0",
+    "tsconfig": "workspace:*"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "^0.2.0",
@@ -116,7 +117,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "8.4.32",
     "tailwindcss": "3.3.5",
-    "tsconfig": "workspace:*",
     "turbo": "^1.10.16"
   }
 }
