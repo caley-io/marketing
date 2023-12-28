@@ -199,7 +199,7 @@ export function Mail({
                   },
                   {
                     title: "Newsletters",
-                    label: "128",
+                    label: "12",
                     icon: Newspaper,
                     variant: "ghost",
                   },
