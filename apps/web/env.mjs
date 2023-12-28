@@ -5,6 +5,8 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     DATABASE_URL: z.string().url(),
+    POSTGRES_PRISMA_URL: z.string().url(),
+    POSTGRES_URL_NON_POOLING: z.string().url(),
     NEXTAUTH_URL: z.string().min(1),
     NEXTAUTH_SECRET: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
@@ -22,7 +24,7 @@ export const env = createEnv({
     LEMON_SQUEEZY_API_SECRET: z.string(),
     LEMON_SQUEEZY_SIGNING_SECRET: z.string(),
     TINYBIRD_TOKEN: z.string(),
-    TINYBIRD_BASE_URL: z.string().default('https://api.us-east.tinybird.co/'),
+    TINYBIRD_BASE_URL: z.string().default("https://api.us-east.tinybird.co/"),
     ENCRYPT_SECRET: z.string().optional(),
     ENCRYPT_SALT: z.string().optional(),
     POSTHOG_API_SECRET: z.string().optional(),
