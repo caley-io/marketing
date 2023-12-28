@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "pipeline": {
+    "build": {
+      "env": [
+        "DATABASE_URL",
+        "DIRECT_URL",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "NEXTAUTH_URL",
+        "NEXTAUTH_SECRET",
+        "OPENAI_API_KEY",
+        "UPSTASH_REDIS_URL",
+        "UPSTASH_REDIS_TOKEN",
+        "GOOGLE_PUBSUB_TOPIC_NAME",
+        "LEMON_SQUEEZY_API_SECRET",
+        "LEMON_SQUEEZY_SIGNING_SECRET",
+        "BASELIME_PROJECT_NAME",
+        "BASELIME_KEY",
+        "SENTRY_AUTH_TOKEN",
+        "SENTRY_ORGANIZATION",
+        "SENTRY_PROJECT",
+        "NEXT_PUBLIC_PRO_PAYMENT_LINK",
+        "NEXT_PUBLIC_LIFETIME_PAYMENT_LINK",
+        "NEXT_PUBLIC_LIFETIME_PLAN_ID",
+        "NEXT_PUBLIC_LEMON_STORE_ID",
+        "NEXT_PUBLIC_UNSUBSCRIBE_CREDITS",
+        "NEXT_PUBLIC_CALL_LINK",
+        "NEXT_PUBLIC_POSTHOG_KEY",
+        "NEXT_PUBLIC_CONTACTS_ENABLED",
+        "NEXT_PUBLIC_SENTRY_DSN"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
