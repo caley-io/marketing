@@ -5,6 +5,7 @@ import {
   Archive,
   ArchiveX,
   File,
+  Gauge,
   Inbox as InboxIcon,
   Loader2,
   MessagesSquare,
@@ -39,6 +40,7 @@ import { ModeToggle } from "@/components/toggle-mode";
 import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
+import { MailStats } from "@/components/mail/components/mail-stats";
 
 interface MailProps {
   accounts: {
@@ -86,6 +88,8 @@ export function Mail({
         );
       case "Newsletters":
         return <Newsletters />;
+      case "Analytics":
+        return <MailStats />;
       case "Drafts":
         return (
           <ResizablePanel defaultSize={1095} className="h-screen">
@@ -197,6 +201,12 @@ export function Mail({
                     title: "Newsletters",
                     label: "128",
                     icon: Newspaper,
+                    variant: "ghost",
+                  },
+                  {
+                    title: "Analytics",
+                    label: "",
+                    icon: Gauge,
                     variant: "ghost",
                   },
                   {

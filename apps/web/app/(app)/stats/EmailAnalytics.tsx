@@ -33,7 +33,7 @@ export function EmailAnalytics(props: {
     `/api/user/stats/senders?${new URLSearchParams(params as any)}`,
     {
       refreshInterval: props.refreshInterval,
-    }
+    },
   );
 
   const {
@@ -44,7 +44,7 @@ export function EmailAnalytics(props: {
     `/api/user/stats/recipients?${new URLSearchParams(params as any)}`,
     {
       refreshInterval: props.refreshInterval,
-    }
+    },
   );
   const {
     data: dataCategories,
@@ -54,7 +54,7 @@ export function EmailAnalytics(props: {
     `/api/user/stats/categories?${new URLSearchParams(params as any)}`,
     {
       refreshInterval: props.refreshInterval,
-    }
+    },
   );
 
   const { isPremium } = usePremium();
@@ -62,7 +62,7 @@ export function EmailAnalytics(props: {
   const { expanded, extra } = useExpanded();
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 xl:grid-cols-3">
       <LoadingContent
         loading={isLoading}
         error={error}
@@ -127,51 +127,6 @@ export function EmailAnalytics(props: {
               }))}
             extra={extra}
           />
-        )}
-      </LoadingContent>
-      <LoadingContent
-        loading={isLoadingCategories}
-        error={errorCategories}
-        loadingComponent={<Skeleton className="h-64 w-full rounded" />}
-      >
-        {dataCategories && (
-          <div className="relative h-full">
-            <BarList
-              title="Types of email you're receiving"
-              // subtitle="Last 50 threads"
-              col1="Category"
-              col2="Emails"
-              data={sortBy(
-                Object.entries(dataCategories.countByCategory),
-                ([, count]) => -count
-              )
-                .slice(0, expanded ? undefined : 5)
-                .map(([category, count]) => ({
-                  name:
-                    category === "undefined"
-                      ? "Uncategorized"
-                      : capitalCase(category),
-                  value: count,
-                }))}
-              extra={extra}
-            />
-
-            {!isPremium && (
-              <div className="absolute inset-0 flex items-center justify-center rounded bg-slate-900/30">
-                <div className="m-4 w-full max-w-full">
-                  <Card>
-                    <Title>AI Categorisation</Title>
-                    <Text className="mt-1">
-                      Upgrade to premium to use AI categorisation.
-                    </Text>
-                    <Button className="mt-4 w-full">
-                      <Link href="/premium">Upgrade</Link>
-                    </Button>
-                  </Card>
-                </div>
-              </div>
-            )}
-          </div>
         )}
       </LoadingContent>
     </div>
