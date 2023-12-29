@@ -8,7 +8,7 @@ import { GMailMessage } from "@/utils/gmail/types";
 
 export type MessagesResponse = Awaited<ReturnType<typeof getMessages>>;
 
-function parseGmailApiResponse(apiResponse: any) {
+export function parseGmailApiResponse(apiResponse: any) {
   const headers = apiResponse.parsedMessage.headers;
   const from = headers["from"];
   const to = headers["to"];
@@ -17,12 +17,17 @@ function parseGmailApiResponse(apiResponse: any) {
   const htmlPart = apiResponse.parsedMessage.textHtml;
   const textPart = apiResponse.parsedMessage.textPlain;
 
-  const isHtmlEmail = !!htmlPart;
+  const hasListUnsubscribe = !!headers["List-Unsubscribe"];
+
+  // Check for bulk mail label
+  const isBulkMail =
+    apiResponse.labelIds.includes("CATEGORY_PROMOTIONS") ||
+    apiResponse.labelIds.includes("CATEGORY_UPDATES");
+
+  const isHtmlEmail = htmlPart && (hasListUnsubscribe || isBulkMail);
   const text = isHtmlEmail ? htmlPart : textPart;
 
-  const date = new Date(
-    parseInt(apiResponse.internalDate),
-  ).toLocaleDateString();
+  const date = headers["date"];
   const read = !apiResponse.labelIds.includes("UNREAD");
 
   return {

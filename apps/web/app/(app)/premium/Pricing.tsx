@@ -21,7 +21,7 @@ const tiers = [
     id: "tier-free",
     href: "/welcome",
     price: { monthly: "$0", annually: "$0" },
-    description: "Try Inbox Zero for free.",
+    description: "Try Caley.ai for free.",
     features: [
       `Unsubscribe from ${env.NEXT_PUBLIC_UNSUBSCRIBE_CREDITS} emails per month`,
       "Email analytics",
@@ -65,7 +65,7 @@ const LIFETIME_PRICE = 179;
 const LIFETIME_LINK = env.NEXT_PUBLIC_LIFETIME_PAYMENT_LINK;
 
 const lifetimeFeatures = [
-  "Everything in Inbox Zero Pro",
+  "Everything in Caley.ai Pro",
   "Priority support",
   "$100 of AI credits",
   "Early access to new features",
@@ -232,7 +232,7 @@ function LifetimePricing() {
             </div>
           </h3>
           <p className="mt-6 text-base leading-7 text-gray-600">
-            Get lifetime access to Inbox Zero Pro for a one-time payment. This
+            Get lifetime access to Caley.ai Pro for a one-time payment. This
             includes $100 in AI credits.
           </p>
           <div className="mt-10 flex items-center gap-x-4">
@@ -260,7 +260,7 @@ function LifetimePricing() {
           <div className="rounded-2xl bg-gray-50 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
             <div className="mx-auto max-w-xs px-8">
               <p className="text-base font-semibold text-gray-600">
-                Lifetime access to Inbox Zero
+                Lifetime access to Caley.ai
               </p>
               <p className="mt-6 flex items-baseline justify-center gap-x-2">
                 <span className="text-5xl font-bold tracking-tight text-gray-900">

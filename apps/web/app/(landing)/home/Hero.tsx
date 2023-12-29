@@ -25,16 +25,17 @@ export function Hero(props: {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           {/* <HeroTag /> */}
 
-          <div className="mx-auto max-w-xl text-center">
+          <div className="mx-auto max-w-2xl text-center">
             {/* <HeroText>{props.title || <HeroHeadingAB />}</HeroText> */}
-            <HeroText>Clean Up Your Inbox In Minutes</HeroText>
+            <HeroText>Emails</HeroText>
+            <HeroText>But Smart and Beautiful</HeroText>
             <HeroSubtitle>
               {props.subtitle || (
                 <>
-                  Newsletter management, AI automation, and email analytics.
+                  AI superpowers, Conversations, Newsletter management, and
+                  email analytics.
                   <br />
-                  Inbox Zero is the open-source email app that puts you back in
-                  control of your inbox.
+                  Caley.ai is the open-source email client that you deserve.
                 </>
               )}
             </HeroSubtitle>
@@ -44,7 +45,7 @@ export function Hero(props: {
           <div className="mt-16 flow-root sm:mt-24">
             <div className="relative -m-2 rounded-xl bg-foreground/5 p-2 ring-1 ring-inset ring-foreground/10 lg:-m-4 lg:rounded-2xl lg:p-4">
               <Image
-                src={props.image || "/images/newsletters.png"}
+                src={props.image || "/images/email.png"}
                 alt="Inbox screenshot"
                 width={2432}
                 height={1442}

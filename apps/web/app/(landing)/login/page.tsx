@@ -4,7 +4,7 @@ import { LoginForm } from "@/app/(landing)/login/LoginForm";
 
 export const metadata: Metadata = {
   title: "Log in",
-  description: "Log in to Inbox Zero.",
+  description: "Log in to Caley.ai.",
 };
 
 export default function AuthenticationPage() {
@@ -38,7 +38,7 @@ export default function AuthenticationPage() {
         </p>
 
         <p className="px-4 pt-4 text-center text-sm text-foreground/60">
-          Inbox Zero{"'"}s use and transfer of information received from Google
+          Caley.ai{"'"}s use and transfer of information received from Google
           APIs to any other app will adhere to{" "}
           <a
             href="https://developers.google.com/terms/api-services-user-data-policy"

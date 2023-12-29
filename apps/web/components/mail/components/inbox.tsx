@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
-import { GMailMessage } from "@/utils/gmail/types";
+import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { DataDisplayComponent } from "@/components/mail/components/mail";
 import { useAtomValue } from "jotai";
 import { configAtom } from "@/utils/store";
@@ -54,7 +54,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
               isLoading={isLoading}
               error={error}
               data={data}
-              renderContent={(data) => <MailList items={data.messages} />}
+              renderContent={(data) => <MailList items={data.threads} />}
             />
           </TabsContent>
           <TabsContent value="unread" className="m-0">
@@ -64,8 +64,8 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
               data={data}
               renderContent={(data) => (
                 <MailList
-                  items={data.messages.filter(
-                    (item: GMailMessage) => !item.read,
+                  items={data.threads.filter(
+                    (item: GMailThread) => !item.messages[0].read,
                   )}
                 />
               )}
@@ -78,15 +78,15 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
         {mail.selected === null ||
         isLoading ||
         error ||
-        data.messages.length === 0 ? (
+        data.threads.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             No message selected
           </div>
         ) : (
           <MailDisplay
             mail={
-              data.messages.find(
-                (item: GMailMessage) => item.id === mail.selected,
+              data.threads.find(
+                (item: GMailThread) => item.id === mail.selected,
               ) || null
             }
           />

@@ -14,19 +14,19 @@ const features = [
   {
     name: "Reply Automatically",
     description:
-      "Tell Inbox Zero how to handle your emails and it will do it for you. Automatically reply, archive, and label emails based on your instructions.",
+      "Tell Caley.ai how to handle your emails and it will do it for you. Automatically reply, archive, and label emails based on your instructions.",
     icon: Sparkles,
   },
   {
     name: "Automatically archive cold emails",
     description:
-      "Sick of cold emails? Inbox Zero can automatically archive and label them for you so they don't clog your inbox.",
+      "Sick of cold emails? Caley.ai can automatically archive and label them for you so they don't clog your inbox.",
     icon: Orbit,
   },
   {
     name: "Explain it in plain English",
     description:
-      "Tell Inbox Zero how to handle your emails in plain English. It's as simple as writing to an assistant or ChatGPT.",
+      "Tell Caley.ai how to handle your emails in plain English. It's as simple as writing to an assistant or ChatGPT.",
     icon: LineChart,
   },
 ];
@@ -92,7 +92,7 @@ export function Features() {
             host it yourself.
           </p>
           <p className="mt-6 text-lg leading-8 text-foreground/60">
-            Inbox Zero has undergone a thorough security process with Google to
+            Caley.ai has undergone a thorough security process with Google to
             ensure the protection of your emails. You can even self-host Inbox
             Zero on your own infrastructure.
           </p>
@@ -203,7 +203,7 @@ export function FeaturesAutomation() {
       imageSide="left"
       title="Automate your inbox"
       subtitle="Your AI assistant for email"
-      description="Keep getting emails that require the same response? Let Inbox Zero handle it."
+      description="Keep getting emails that require the same response? Let Caley.ai handle it."
       image="/images/rules.png"
       features={featuresAutomations}
     />

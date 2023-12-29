@@ -39,14 +39,62 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import DOMPurify from "dompurify";
-import { GMailMessage } from "@/utils/gmail/types";
+import { GMailMessage, GMailThread } from "@/utils/gmail/types";
+import { cn } from "@/utils";
+import { useSession } from "next-auth/react";
 
 interface MailDisplayProps {
-  mail: GMailMessage | null;
+  mail: GMailThread | null;
+}
+// Define the pattern that typically precedes quoted text in a reply
+function extractLatestReply(emailContent: string): string {
+  // Define the pattern that typically precedes quoted text in a reply
+  const replyPattern = /On .+ wrote:/;
+  const parts = emailContent.split(replyPattern);
+
+  // The latest reply is typically before the first occurrence of the pattern
+  const latestReply = parts[0].trim();
+
+  // If the pattern isn't found, try to extract the reply using the "Sent via" pattern
+  // First, try to find the index where "Sent via" starts
+  const sentViaIndex = latestReply.search(/Sent via .+/);
+
+  if (sentViaIndex !== -1) {
+    // If "Sent via" is found, return everything before it
+    return latestReply.substring(0, sentViaIndex).trim();
+  }
+
+  // If no patterns are found, return the whole content
+  return latestReply.trim();
+}
+
+function formatPlainTextEmail(text: string): string {
+  // First, safely convert line breaks to <br> tags
+  let formattedText = text.replace(/\n/g, "<br>");
+
+  // Next, find and replace the "Sent via [Service] <URL>" pattern
+  formattedText = formattedText.replace(
+    /Sent via ([^<]+) <(https?:\/\/[^>]+)>/g,
+    (_, service, url) => {
+      return `Sent via <a href="${url}" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">${service}</a>`;
+    },
+  );
+
+  // Finally, convert any other standalone URLs to clickable links
+  formattedText = formattedText.replace(
+    /(?<!href=")(https?:\/\/\S+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">$1</a>',
+  );
+
+  return formattedText;
 }
 
 export function MailDisplay({ mail }: MailDisplayProps) {
   const today = new Date();
+  const session = useSession();
+  const email = session.data?.user.email;
+
+  console.log(mail);
 
   const createMarkup = (htmlContent: any) => {
     return { __html: DOMPurify.sanitize(htmlContent) };
@@ -195,44 +243,92 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
-                <AvatarImage alt={mail.name} />
+                <AvatarImage alt={mail.messages[0].name} />
                 <AvatarFallback>
-                  {mail.name
+                  {mail.messages[0].name
                     .split(" ")
                     .map((chunk) => chunk[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">{mail.name}</div>
-                <div className="line-clamp-1 text-xs">{mail.subject}</div>
+                <div className="font-semibold">{mail.messages[0].name}</div>
                 <div className="line-clamp-1 text-xs">
-                  <span className="font-medium">Reply-To:</span> {mail.email}
+                  {mail.messages[0].subject}
+                </div>
+                <div className="line-clamp-1 text-xs">
+                  <span className="font-medium">Reply-To:</span>{" "}
+                  {mail.messages[0].email}
                 </div>
               </div>
             </div>
-            {mail.date && (
+            {mail.messages[0].date && (
               <div className="ml-auto text-xs text-muted-foreground">
-                {format(new Date(mail.date), "PPpp")}
+                {format(new Date(mail.messages[0].date), "PPpp")}
               </div>
             )}
           </div>
           <Separator />
           <div className="relative flex-1 overflow-y-auto">
-            {mail.isHtmlEmail ? (
-              <iframe
-                title="Email Content"
-                srcDoc={createMarkup(mail.text).__html}
-                className="h-full w-full border-none"
-                sandbox="allow-same-origin"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  fontFamily: "inherit !important",
-                }}
-              />
+            {mail.messages.length > 1 ? (
+              <div className="space-y-4 p-4">
+                {mail.messages.map((message: GMailMessage, index) => (
+                  <div
+                    key={message.id}
+                    className={cn("flex flex-col items-start", {
+                      "flex flex-col items-end": message.email.includes(
+                        email || "",
+                      ),
+                    })}
+                  >
+                    {message.isHtmlEmail ? (
+                      <iframe
+                        title="Email Content"
+                        srcDoc={createMarkup(message.text).__html}
+                        className="h-full w-full border-none"
+                        sandbox="allow-same-origin"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          fontFamily: "inherit !important",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={"rounded-xl border p-4 text-sm"}
+                        dangerouslySetInnerHTML={{
+                          __html: formatPlainTextEmail(
+                            extractLatestReply(message.text),
+                          ),
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
-              <div className="text-sm">{mail.text}</div>
+              <>
+                {mail.messages[0].isHtmlEmail ? (
+                  <iframe
+                    title="Email Content"
+                    srcDoc={createMarkup(mail.messages[0].text).__html}
+                    className="h-full w-full border-none"
+                    sandbox="allow-same-origin"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      fontFamily: "inherit !important",
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="p-4 text-sm"
+                    dangerouslySetInnerHTML={{
+                      __html: formatPlainTextEmail(mail.messages[0].text),
+                    }}
+                  />
+                )}
+              </>
             )}
           </div>
           <Separator className="mt-auto" />
@@ -241,7 +337,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
               <div className="grid gap-4">
                 <Textarea
                   className="p-4"
-                  placeholder={`Reply ${mail.name}...`}
+                  placeholder={`Reply ${mail.messages[0].name}...`}
                 />
                 <div className="flex items-center">
                   <Label

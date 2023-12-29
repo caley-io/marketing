@@ -7,11 +7,11 @@ import { cn } from "@/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtom } from "jotai";
-import { GMailMessage } from "@/utils/gmail/types";
+import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { configAtom } from "@/utils/store";
 
 interface MailListProps {
-  items: GMailMessage[];
+  items: GMailThread[];
 }
 
 export function MailList({ items }: MailListProps) {
@@ -36,8 +36,10 @@ export function MailList({ items }: MailListProps) {
             <div className="flex w-full flex-col gap-1">
               <div className="flex items-center">
                 <div className="flex items-center gap-2">
-                  <div className="font-semibold">{item.name}</div>
-                  {!item.read && (
+                  <div className="font-semibold">
+                    {item.messages[0].name.replace(/"/g, "")}
+                  </div>
+                  {!item.messages[0].read && (
                     <span className="flex h-2 w-2 rounded-full bg-blue-600" />
                   )}
                 </div>
@@ -49,19 +51,21 @@ export function MailList({ items }: MailListProps) {
                       : "text-muted-foreground",
                   )}
                 >
-                  {formatDistanceToNow(new Date(item.date), {
+                  {formatDistanceToNow(new Date(item.messages[0].date), {
                     addSuffix: true,
                   })}
                 </div>
               </div>
-              <div className="text-xs font-medium">{item.subject}</div>
+              <div className="text-xs font-medium">
+                {item.messages[0].subject}
+              </div>
             </div>
             <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.snippet}
+              {item.messages[0].snippet}
             </div>
-            {item.labels.length ? (
+            {item.messages[0].labels.length ? (
               <div className="flex items-center gap-2">
-                {item.labels.map((label) => (
+                {item.messages[0].labels.map((label) => (
                   <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
                     {label}
                   </Badge>

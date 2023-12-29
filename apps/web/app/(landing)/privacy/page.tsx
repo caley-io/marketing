@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Inbox Zero",
-  description: "Privacy Policy - Inbox Zero",
+  title: "Privacy Policy - Caley.ai",
+  description: "Privacy Policy - Caley.ai",
 };
 
 export default function Terms() {

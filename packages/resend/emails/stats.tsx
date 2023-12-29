@@ -55,7 +55,7 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Your weekly email stats from Inbox Zero.</Preview>
+      <Preview>Your weekly email stats from Caley.ai.</Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
@@ -65,7 +65,7 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
                   src={`${baseUrl}/icon.png`}
                   width="40"
                   height="40"
-                  alt="Inbox Zero"
+                  alt="Caley.ai"
                   className="mx-auto my-0"
                 />
               </Link>
@@ -73,11 +73,11 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
 
             <Section>
               <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0 text-center">
-                Your weekly email stats from Inbox Zero
+                Your weekly email stats from Caley.ai
               </Heading>
 
               <Text style={paragraph}>
-                Here are your weekly email stats from Inbox Zero!
+                Here are your weekly email stats from Caley.ai!
               </Text>
 
               <Text style={paragraph}>
@@ -145,8 +145,8 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
 
             <Section>
               <Text>
-                You're receiving this email because you're subscribed to Inbox
-                Zero stats updates. You can change this in your{" "}
+                You're receiving this email because you're subscribed to
+                Caley.ai stats updates. You can change this in your{" "}
                 <Link
                   href={`${baseUrl}/settings#email-updates`}
                   className="text-[15px]"

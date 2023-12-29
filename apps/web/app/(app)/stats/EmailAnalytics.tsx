@@ -1,12 +1,8 @@
 "use client";
 
-import { capitalCase } from "capital-case";
-import { sortBy } from "lodash";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import { DateRange } from "react-day-picker";
-import Link from "next/link";
-import { Text, Title } from "@tremor/react";
 import { useExpanded } from "@/app/(app)/stats/useExpanded";
 import { CategoryStatsResponse } from "@/app/api/user/stats/categories/route";
 import { RecipientsResponse } from "@/app/api/user/stats/recipients/route";
@@ -16,8 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarList } from "@/components/charts/BarList";
 import { getDateRangeParams } from "@/app/(app)/stats/params";
 import { getGmailSearchUrl } from "@/utils/url";
-import { Card } from "@/components/Card";
-import { Button } from "@/components/ui/button";
 import { usePremium } from "@/components/PremiumAlert";
 
 export function EmailAnalytics(props: {

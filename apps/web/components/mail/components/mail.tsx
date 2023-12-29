@@ -10,8 +10,6 @@ import {
   Loader2,
   MessagesSquare,
   Newspaper,
-  PenBox,
-  Search,
   Send,
   ShoppingCart,
   Trash2,
@@ -19,13 +17,9 @@ import {
 } from "lucide-react";
 
 import { AccountSwitcher } from "./account-switcher";
-import { MailDisplay } from "./mail-display";
-import { MailList } from "./mail-list";
 import { Nav } from "./nav";
 import { cn } from "@/utils";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   ResizableHandle,
@@ -35,12 +29,11 @@ import {
 import { useAtomValue } from "jotai";
 import useSWR from "swr";
 import { configAtom } from "@/utils/store";
-import { GMailMessage } from "@/utils/gmail/types";
-import { ModeToggle } from "@/components/toggle-mode";
 import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
+import { th } from "date-fns/locale";
 
 interface MailProps {
   accounts: {
@@ -59,7 +52,11 @@ export function Mail({
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
-  const { data, error, isLoading } = useSWR("/api/google/messages", {
+  const {
+    data: threadsData,
+    error: threadsError,
+    isLoading: threadsLoading,
+  } = useSWR("/api/google/threads", {
     keepPreviousData: true,
   });
 
@@ -80,9 +77,9 @@ export function Mail({
       case "Inbox":
         return (
           <Inbox
-            data={data}
-            isLoading={isLoading}
-            error={error}
+            data={threadsData}
+            isLoading={threadsLoading}
+            error={threadsError}
             defaultLayout={defaultLayout}
           />
         );
@@ -319,7 +316,7 @@ export function DataDisplayComponent({
     );
   }
 
-  if (!data || data.messages.length === 0) {
+  if (!data || data.threads.length === 0) {
     return (
       <div className="p-8 text-center text-muted-foreground">
         No emails available

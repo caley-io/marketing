@@ -2,7 +2,7 @@ const faqs = [
   {
     question: "Do you store my emails?",
     answer:
-      "We store a hashed version of your emails for our analytics feature. As our code is open-source you can check our code to see this for yourself. For full data privacy you can self-host your own instance of Inbox Zero.",
+      "We store a hashed version of your emails for our analytics feature. As our code is open-source you can check our code to see this for yourself. For full data privacy you can self-host your own instance of Caley.ai.",
   },
   {
     question: "Is the code open-source?",
@@ -45,12 +45,7 @@ const faqs = [
     ),
   },
   {
-    question: "Can I still use Inbox Zero alonside my current email client?",
-    answer:
-      "Yes! Inbox Zero is intended to be used alongside your existing email client.",
-  },
-  {
-    question: "Which email providers does Inbox Zero support?",
+    question: "Which email providers does Caley.ai support?",
     answer:
       "We only support Gmail and Gsuite email accounts today. We may add support for other email providers such as Outlook in the future.",
   },

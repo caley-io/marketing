@@ -19,12 +19,12 @@ export function CTA() {
         <h2 className="font-cal text-3xl text-foreground sm:text-4xl">
           Boost your productivity.
           <br />
-          Start using Inbox Zero today.
+          Start using Caley.ai today.
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-foreground/60">
-          Inbox Zero uses AI to help you empty your inbox daily. What previously
-          took hours, now takes minutes. Inbox Zero is your virtual assistant
-          for emails.
+          Caley.ai uses AI to help you empty your inbox daily. What previously
+          took hours, now takes minutes. Caley.ai is your virtual assistant for
+          emails.
         </p>
         <CTAButtons />
       </div>

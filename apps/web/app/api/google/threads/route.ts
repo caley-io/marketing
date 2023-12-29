@@ -11,6 +11,7 @@ import prisma from "@/utils/prisma";
 import { getCategory } from "@/utils/redis/category";
 import { getThreadsBatch } from "@/utils/gmail/thread";
 import { withError } from "@/utils/middleware";
+import { parseGmailApiResponse } from "@/app/api/google/messages/route";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,12 @@ async function getThreads(query: ThreadsQuery) {
       const id = thread.id!;
       const messages = parseMessages(thread as ThreadWithPayloadMessages);
 
+      const messagesAsGMailMessage = messages.map((message) => {
+        return parseGmailApiResponse({
+          ...message,
+        });
+      });
+
       const plan = await getPlan({ userId: session.user.id, threadId: id });
       const rule = plan
         ? rules.find((r) => r.id === plan?.rule?.id)
@@ -64,7 +71,7 @@ async function getThreads(query: ThreadsQuery) {
       return {
         id: thread.id,
         historyId: thread.historyId,
-        messages,
+        messages: messagesAsGMailMessage,
         snippet: he.decode(thread.snippet || ""),
         plan: plan ? { ...plan, databaseRule: rule } : undefined,
         category: await getCategory({ email, threadId: id }),

@@ -16,7 +16,7 @@ export default function AiAutomation() {
       <main className="isolate">
         <Hero
           title="Automate your email inbox with AI automation"
-          subtitle="Inbox Zero's AI automation simplifies your email management. It smartly handles repetitive queries, automates responses, and efficiently organizes your inbox, streamlining your email workflow for maximum efficiency."
+          subtitle="Caley.ai's AI automation simplifies your email management. It smartly handles repetitive queries, automates responses, and efficiently organizes your inbox, streamlining your email workflow for maximum efficiency."
           image="/images/rules.png"
         />
         {/* <LogoCloud /> */}

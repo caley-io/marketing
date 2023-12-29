@@ -30,14 +30,14 @@ const sendEmail = async ({
     return Promise.resolve();
   }
   return resend.emails.send({
-    from: "Elie from Inbox Zero <elie@getinboxzero.com>",
+    from: "Jeremy from Caley.ai <jeremy@caley.ai>",
     to: test ? "delivered@resend.dev" : to,
     subject,
     react,
     headers: {
       ...(listUnsubscribe
         ? {
-            "List-Unsubscribe": "<https://www.getinboxzero.com/settings>",
+            "List-Unsubscribe": "<https://www.caley.ai/settings>",
             // TODO From Feb 2024 Google requires this for bulk senders
             // "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
           }

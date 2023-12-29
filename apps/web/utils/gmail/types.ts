@@ -12,6 +12,15 @@ export interface GMailMessage {
   labels: string[];
 }
 
+export interface GMailThread {
+  id: string;
+  historyId: string;
+  messages: GMailMessage[];
+  snippet: string;
+  plan: any;
+  category: any;
+}
+
 function decodeHtmlPart(parts: any) {
   // Check if parts is defined and is an array
   if (!parts || !Array.isArray(parts)) {

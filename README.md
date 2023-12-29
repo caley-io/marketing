@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.getinboxzero.com">
-    <h1 align="center">Inbox Zero</h1>
+    <h1 align="center">Caley.ai</h1>
   </a>
   <p align="center">
     Open source email management tools to reach inbox zero fast.
@@ -17,11 +17,11 @@
 
 ## About
 
-Inbox Zero is a powerful open-source tool designed for Gmail and Gsuite users. It streamlines your email management, helping you achieve 'Inbox Zero' swiftly with features like email analytics, newsletter management, and AI assistance. Enhance your email experience without replacing your client!
+Caley.ai is a powerful open-source tool designed for Gmail and Gsuite users. It streamlines your email management, helping you achieve 'Inbox Zero' swiftly with features like email analytics, newsletter management, and AI assistance. Enhance your email experience without replacing your client!
 
 ## Demo Video
 
-[![Inbox Zero demo](/video-thumbnail.png)](http://www.youtube.com/watch?v=kc_9WZ1ZWyg)
+[![Caley.ai demo](/video-thumbnail.png)](http://www.youtube.com/watch?v=kc_9WZ1ZWyg)
 
 ## Key Features
 
