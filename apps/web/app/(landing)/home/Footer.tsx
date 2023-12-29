@@ -9,10 +9,6 @@ const navigation = {
     { name: "Open Source", href: "/github", target: "_blank" },
     { name: "OSS Friends", href: "/oss-friends" },
   ],
-  legal: [
-    { name: "Terms", href: "/terms" },
-    { name: "Privacy", href: "/privacy" },
-  ],
   support: [
     { name: "Pricing", href: "/#pricing" },
     { name: "Feature Requests", href: "/feature-requests", target: "_blank" },
@@ -81,9 +77,6 @@ export function Footer() {
           <div className="md:grid md:grid-cols-2 md:gap-8">
             <div>
               <FooterList title="Company" items={navigation.company} />
-            </div>
-            <div className="mt-10 md:mt-0">
-              <FooterList title="Legal" items={navigation.legal} />
             </div>
           </div>
         </div>
