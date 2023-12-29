@@ -9,9 +9,8 @@ import { INBOX_LABEL_ID } from "@/utils/label";
 import { ThreadWithPayloadMessages } from "@/utils/types";
 import prisma from "@/utils/prisma";
 import { getCategory } from "@/utils/redis/category";
-import { getThreadsBatch } from "@/utils/gmail/thread";
+import { getThreadsBatch, parseGmailApiResponse } from "@/utils/gmail/thread";
 import { withError } from "@/utils/middleware";
-import { parseGmailApiResponse } from "@/app/api/google/messages/route";
 
 export const dynamic = "force-dynamic";
 

@@ -1,4 +1,5 @@
 import { getBatch } from "@/utils/gmail/batch";
+import { GMailMessage } from "@/utils/gmail/types";
 import { gmail_v1 } from "googleapis";
 
 export async function getThread(threadId: string, gmail: gmail_v1.Gmail) {
@@ -21,4 +22,41 @@ export async function getThreadsBatch(
   );
 
   return batch;
+}
+
+export function parseGmailApiResponse(apiResponse: any) {
+  const headers = apiResponse.parsedMessage.headers;
+  const from = headers["from"];
+  const to = headers["to"];
+  const subject = headers["subject"];
+
+  const htmlPart = apiResponse.parsedMessage.textHtml;
+  const textPart = apiResponse.parsedMessage.textPlain;
+
+  const hasListUnsubscribe = !!headers["List-Unsubscribe"];
+
+  // Check for bulk mail label
+  const isBulkMail =
+    apiResponse.labelIds.includes("CATEGORY_PROMOTIONS") ||
+    apiResponse.labelIds.includes("CATEGORY_UPDATES");
+
+  const isHtmlEmail = htmlPart && (hasListUnsubscribe || isBulkMail);
+  const text = isHtmlEmail ? htmlPart : textPart;
+
+  const date = headers["date"];
+  const read = !apiResponse.labelIds.includes("UNREAD");
+
+  return {
+    id: apiResponse.id,
+    name: from?.split("<")[0], // You might want to parse this to get a more readable name
+    email: from,
+    to: to,
+    subject: subject,
+    snippet: apiResponse.snippet,
+    text: text,
+    isHtmlEmail: isHtmlEmail,
+    date: date,
+    read: read,
+    labels: apiResponse.labelIds,
+  } as GMailMessage;
 }
