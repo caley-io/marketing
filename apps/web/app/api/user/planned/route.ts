@@ -7,7 +7,6 @@ import { getPlans } from "@/utils/redis/plan";
 import { parseMessage } from "@/utils/mail";
 import { isDefined } from "@/utils/types";
 import { getMessage } from "@/utils/gmail/message";
-import { Thread } from "@/components/email-list/types";
 import { getCategory } from "@/utils/redis/category";
 import prisma from "@/utils/prisma";
 import { withError } from "@/utils/middleware";
@@ -20,7 +19,7 @@ const LIMIT = 50;
 export type PlannedResponse = Awaited<ReturnType<typeof getPlanned>>;
 
 // overlapping code with apps/web/app/api/google/threads/route.ts
-async function getPlanned(): Promise<{ messages: Thread[] }> {
+async function getPlanned(): Promise<{ messages: any }> {
   const session = await auth();
   if (!session?.user.email) throw new Error("Not authenticated");
 
@@ -51,7 +50,7 @@ async function getPlanned(): Promise<{ messages: Thread[] }> {
           ? rules.find((r) => r.id === plan?.rule?.id)
           : undefined;
 
-        const thread: Thread = {
+        const thread = {
           id: message.threadId,
           historyId: message.historyId,
           snippet: he.decode(message.snippet || ""),

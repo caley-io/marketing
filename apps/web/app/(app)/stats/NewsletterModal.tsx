@@ -20,7 +20,6 @@ import {
 import { ZodPeriod } from "@inboxzero/tinybird";
 import { LoadingContent } from "@/components/LoadingContent";
 import { SectionHeader } from "@/components/Typography";
-import { EmailList } from "@/components/email-list/EmailList";
 import { ThreadsResponse } from "@/app/api/google/threads/route";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -161,23 +160,7 @@ function Emails(props: { fromEmail: string; refreshInterval?: number }) {
           <TabsTrigger value="all">All</TabsTrigger>
         </TabsList>
       </Tabs>
-      <div className="mt-2">
-        <LoadingContent loading={isLoading} error={error}>
-          {data && (
-            <EmailList
-              threads={data.threads}
-              emptyMessage={
-                <AlertBasic
-                  title="No emails"
-                  description={`There are no unarchived emails. Switch to the "All" to view all emails from this sender.`}
-                />
-              }
-              hideActionBarWhenEmpty
-              refetch={mutate}
-            />
-          )}
-        </LoadingContent>
-      </div>
+      <div className="mt-2"></div>
     </>
   );
 }
