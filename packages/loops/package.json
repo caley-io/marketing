@@ -1,14 +1,13 @@
 {
-  "name": "@inboxzero/loops",
-  "version": "0.0.0",
-  "main": "src/index.ts",
-  "license": "MIT",
-  "dependencies": {
-    "loops": "^0.1.1"
-  },
-  "devDependencies": {
-    "@types/node": "20.9.3",
-    "tsconfig": "workspace:*",
-    "typescript": "5.3.2"
-  }
+    "name": "@inboxzero/loops",
+    "version": "0.0.0",
+    "main": "src/index.ts",
+    "license": "MIT",
+    "dependencies": {
+        "loops": "^0.1.1",
+        "@types/node": "20.9.3",
+        "tsconfig": "workspace:*",
+        "typescript": "5.3.2"
+    },
+    "devDependencies": {}
 }

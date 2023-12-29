@@ -390,13 +390,12 @@ importers:
 
   packages/loops:
     dependencies:
-      loops:
-        specifier: ^0.1.1
-        version: 0.1.1
-    devDependencies:
       '@types/node':
         specifier: 20.9.3
         version: 20.9.3
+      loops:
+        specifier: ^0.1.1
+        version: 0.1.1
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
@@ -409,6 +408,15 @@ importers:
       '@react-email/components':
         specifier: ^0.0.12
         version: 0.0.12(@types/react@18.2.41)(react@18.2.0)
+      '@types/node':
+        specifier: 20.9.3
+        version: 20.9.3
+      '@types/react':
+        specifier: 18.2.41
+        version: 18.2.41
+      '@types/react-dom':
+        specifier: 18.2.17
+        version: 18.2.17
       nanoid:
         specifier: ^5.0.4
         version: 5.0.4
@@ -424,16 +432,6 @@ importers:
       resend:
         specifier: ^2.0.0
         version: 2.0.0
-    devDependencies:
-      '@types/node':
-        specifier: 20.9.3
-        version: 20.9.3
-      '@types/react':
-        specifier: 18.2.41
-        version: 18.2.41
-      '@types/react-dom':
-        specifier: 18.2.17
-        version: 18.2.17
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
@@ -446,10 +444,6 @@ importers:
       '@chronark/zod-bird':
         specifier: 0.2.2
         version: 0.2.2
-      zod:
-        specifier: 3.22.4
-        version: 3.22.4
-    devDependencies:
       '@types/node':
         specifier: 20.9.3
         version: 20.9.3
@@ -459,6 +453,9 @@ importers:
       typescript:
         specifier: 5.3.2
         version: 5.3.2
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
 
   packages/tsconfig: {}
 
@@ -4310,12 +4307,13 @@ packages:
 
   /@types/prop-types@15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
+    dev: false
 
   /@types/react-dom@18.2.17:
     resolution: {integrity: sha512-rvrT/M7Df5eykWFxn6MYt5Pem/Dbyc1N8Y0S9Mrkw2WFCRiqUgw9P7ul2NpwsXCSM1DVdENzdG9J5SreqfAIWg==}
     dependencies:
       '@types/react': 18.2.46
-    dev: true
+    dev: false
 
   /@types/react-dom@18.2.18:
     resolution: {integrity: sha512-TJxDm6OfAX2KJWJdMEVTwWke5Sc/E/RlnPGvGfS0W7+6ocy2xhDVQVh/KvC2Uf7kACs+gDytdusDSdWfWkaNzw==}
@@ -4329,6 +4327,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
       csstype: 3.1.2
+    dev: false
 
   /@types/react@18.2.46:
     resolution: {integrity: sha512-nNCvVBcZlvX4NU1nRRNV/mFl1nNRuTuslAJglQsq+8ldXe5Xv0Wd2f7WTE3jOxhLH2BFfiZGC6GCp+kHQbgG+w==}
@@ -4336,9 +4335,11 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
       csstype: 3.1.2
+    dev: false
 
   /@types/scheduler@0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
+    dev: false
 
   /@types/shimmer@1.0.4:
     resolution: {integrity: sha512-hsughtxFsdJ9+Gxd/qH8zHE+KT6YEAxx9hJLoSXhxTBKHMQ2NMhN23fRJ75M9RRn2hDMNn13H3gS1EktA9VgDA==}
@@ -5589,6 +5590,7 @@ packages:
 
   /csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
+    dev: false
 
   /d3-array@3.2.4:
     resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
