@@ -38,7 +38,15 @@ export function parseGmailApiResponse(apiResponse: any) {
   // Check for bulk mail label
   const isBulkMail =
     apiResponse.labelIds.includes("CATEGORY_PROMOTIONS") ||
-    apiResponse.labelIds.includes("CATEGORY_UPDATES");
+    apiResponse.labelIds.includes("CATEGORY_UPDATES") ||
+    from?.includes("no-reply@") ||
+    from?.includes("noreply@") ||
+    from?.includes("no_reply@") ||
+    from?.includes("noreply@") ||
+    from?.includes("notifications") ||
+    from?.includes("notification") ||
+    from?.includes("info@") ||
+    from?.includes("info.");
 
   const isHtmlEmail = htmlPart && (hasListUnsubscribe || isBulkMail);
   const text = isHtmlEmail ? htmlPart : textPart;

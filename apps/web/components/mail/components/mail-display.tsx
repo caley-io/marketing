@@ -42,6 +42,8 @@ import DOMPurify from "dompurify";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { cn } from "@/utils";
 import { useSession } from "next-auth/react";
+import { formatDistanceToNow } from "date-fns";
+import { useEffect } from "react";
 
 interface MailDisplayProps {
   mail: GMailThread | null;
@@ -95,6 +97,32 @@ export function MailDisplay({ mail }: MailDisplayProps) {
   const email = session.data?.user.email;
 
   console.log(mail);
+
+  useEffect(() => {
+    const iframes = document.querySelectorAll("iframe");
+
+    iframes.forEach((iframe) => {
+      iframe.onload = () => {
+        try {
+          const body = iframe.contentWindow?.document.body;
+          const html = iframe.contentWindow?.document.documentElement;
+          if (!body || !html) {
+            return;
+          }
+          const height = Math.max(
+            body.scrollHeight,
+            body.offsetHeight,
+            html.clientHeight,
+            html.scrollHeight,
+            html.offsetHeight,
+          );
+          iframe.style.height = `${height}px`;
+        } catch (error) {
+          console.error("Error resizing iframe:", error);
+        }
+      };
+    });
+  }, []);
 
   const createMarkup = (htmlContent: any) => {
     return { __html: DOMPurify.sanitize(htmlContent) };
@@ -282,17 +310,35 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                     })}
                   >
                     {message.isHtmlEmail ? (
-                      <iframe
-                        title="Email Content"
-                        srcDoc={createMarkup(message.text).__html}
-                        className="h-full w-full border-none"
-                        sandbox="allow-same-origin"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          fontFamily: "inherit !important",
-                        }}
-                      />
+                      <div className="flex h-full w-full flex-col">
+                        <div
+                          className={
+                            "ml-auto p-2 text-xs text-muted-foreground"
+                          }
+                        >
+                          {formatDistanceToNow(new Date(message.date), {
+                            addSuffix: true,
+                          })}
+                        </div>
+                        <iframe
+                          key={message.id}
+                          title={`Email Content ${index}`}
+                          srcDoc={createMarkup(message.text).__html}
+                          className="w-full border-none"
+                          sandbox="allow-same-origin"
+                          onLoad={(e) => {
+                            console.log("Iframe loaded:", e);
+                          }}
+                          onError={(e) =>
+                            console.error("Iframe load error:", e)
+                          }
+                          style={{
+                            width: "100%",
+                            minHeight: "100px", // initial minimum height
+                            fontFamily: "inherit !important",
+                          }}
+                        ></iframe>
+                      </div>
                     ) : (
                       <div
                         className={"rounded-xl border p-4 text-sm"}
