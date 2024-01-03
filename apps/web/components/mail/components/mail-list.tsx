@@ -1,6 +1,6 @@
 "use client";
 
-import { ComponentProps } from "react";
+import { ComponentProps, useEffect, useRef, useState } from "react";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import { cn } from "@/utils";
@@ -16,15 +16,69 @@ interface MailListProps {
 
 export function MailList({ items }: MailListProps) {
   const [mail, setMail] = useAtom(configAtom);
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  useEffect(() => {
+    itemRefs.current = itemRefs.current.slice(0, items.length);
+  }, [items]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "j") {
+        setFocusedIndex((prev) => {
+          const nextIndex = prev < items.length - 1 ? prev + 1 : prev;
+          if (
+            itemRefs.current[nextIndex] &&
+            itemRefs.current[nextIndex] !== null
+          ) {
+            itemRefs?.current[nextIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+          return nextIndex;
+        });
+      } else if (e.key === "k") {
+        setFocusedIndex((prev) => {
+          const nextIndex = prev > 0 ? prev - 1 : 0;
+          if (
+            itemRefs.current[nextIndex] &&
+            itemRefs.current[nextIndex] !== null
+          ) {
+            itemRefs?.current[nextIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+          return nextIndex;
+        });
+      } else if (e.key === "Enter" && focusedIndex !== -1) {
+        const selectedItem = items[focusedIndex];
+        setMail({
+          mail: selectedItem,
+          selected: selectedItem.id,
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [items, setMail, focusedIndex]);
   return (
     <ScrollArea className="h-screen pb-32">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <button
             key={item.id}
+            ref={(el) => (itemRefs.current[index] = el)}
             className={cn(
               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
               mail.selected === item.id && "bg-muted",
+              focusedIndex === index && "bg-muted/60",
             )}
             onClick={() =>
               setMail({
@@ -39,7 +93,7 @@ export function MailList({ items }: MailListProps) {
                   <div className="font-semibold">
                     {item.messages[0].name.replace(/"/g, "")}
                   </div>
-                  {!item.messages[0].read && (
+                  {!item.messages[item.messages.length - 1].read && (
                     <span className="flex h-2 w-2 rounded-full bg-blue-600" />
                   )}
                 </div>
@@ -51,9 +105,12 @@ export function MailList({ items }: MailListProps) {
                       : "text-muted-foreground",
                   )}
                 >
-                  {formatDistanceToNow(new Date(item.messages[0].date), {
-                    addSuffix: true,
-                  })}
+                  {formatDistanceToNow(
+                    new Date(item.messages[item.messages.length - 1].date),
+                    {
+                      addSuffix: true,
+                    },
+                  )}
                 </div>
               </div>
               <div className="text-xs font-medium">

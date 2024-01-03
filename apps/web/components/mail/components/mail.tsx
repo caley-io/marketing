@@ -10,6 +10,7 @@ import {
   Loader2,
   MessagesSquare,
   Newspaper,
+  Pencil,
   Send,
   ShoppingCart,
   Trash2,
@@ -33,7 +34,7 @@ import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { th } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
 
 interface MailProps {
   accounts: {
@@ -175,7 +176,7 @@ export function Mail({
           <div
             className={cn(
               "flex h-[52px] items-center justify-center",
-              isCollapsed ? "h-[52px]" : "px-2",
+              isCollapsed ? "h-[52px] flex-col" : "px-2",
             )}
           >
             <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
@@ -190,7 +191,7 @@ export function Mail({
                 links={[
                   {
                     title: "Inbox",
-                    label: "128",
+                    label: threadsData?.threads.length || "",
                     icon: InboxIcon,
                     variant: "default",
                   },
@@ -276,6 +277,12 @@ export function Mail({
                   },
                 ]}
               />
+              <Separator />
+              <div className="p-4">
+                <Button>
+                  <Pencil className="mr-2 h-4 w-4" /> Compose
+                </Button>
+              </div>
             </div>
             <div className="p-4">
               <ProfileDropdown />
