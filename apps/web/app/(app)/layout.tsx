@@ -1,13 +1,13 @@
 import "../../styles/globals.css";
 import React from "react";
 import { redirect } from "next/navigation";
-import { SideNavWithTopNav } from "@/components/SideNavWithTopNav";
 import { TokenCheck } from "@/components/TokenCheck";
 import Providers from "@/app/(app)/providers";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import { PostHogIdentify } from "@/providers/PostHogProvider";
 import { CommandK } from "@/components/CommandK";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 export default async function AppLayout({
   children,
@@ -29,6 +29,7 @@ export default async function AppLayout({
         <PostHogIdentify />
         <TokenCheck />
         <CommandK />
+        <Toaster />
         {children}
       </ThemeProvider>
     </Providers>

@@ -25,10 +25,14 @@ export async function getThreadsBatch(
 }
 
 export function parseGmailApiResponse(apiResponse: any) {
+  console.log("parseGmailApiResponse", apiResponse);
   const headers = apiResponse.parsedMessage.headers;
   const from = headers["from"];
   const to = headers["to"];
   const subject = headers["subject"];
+  const references = headers["references"] || "";
+  const inReplyTo = headers["in-reply-to"] || "";
+  const messageId = headers["message-id"] || "";
 
   const htmlPart = apiResponse.parsedMessage.textHtml;
   const textPart = apiResponse.parsedMessage.textPlain;
@@ -66,5 +70,8 @@ export function parseGmailApiResponse(apiResponse: any) {
     date: date,
     read: read,
     labels: apiResponse.labelIds,
+    references: references,
+    inReplyTo: inReplyTo,
+    messageId: messageId,
   } as GMailMessage;
 }

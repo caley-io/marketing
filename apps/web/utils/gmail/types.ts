@@ -10,6 +10,9 @@ export interface GMailMessage {
   date: string;
   read: boolean;
   labels: string[];
+  references?: string;
+  inReplyTo?: string;
+  messageId?: string;
 }
 
 export interface GMailThread {

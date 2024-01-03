@@ -65,11 +65,16 @@ export function MailList({ items }: MailListProps) {
             </div>
             {item.messages[0].labels.length ? (
               <div className="flex items-center gap-2">
-                {item.messages[0].labels.map((label) => (
-                  <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
-                    {label}
-                  </Badge>
-                ))}
+                {item.messages[0].labels
+                  .filter((label) => !label.toLowerCase().includes("unread"))
+                  .map((label) => (
+                    <Badge
+                      key={label}
+                      variant={getBadgeVariantFromLabel(label)}
+                    >
+                      {getBadgeTextFormatted(label)}
+                    </Badge>
+                  ))}
               </div>
             ) : null}
           </button>
@@ -82,13 +87,45 @@ export function MailList({ items }: MailListProps) {
 function getBadgeVariantFromLabel(
   label: string,
 ): ComponentProps<typeof Badge>["variant"] {
-  if (["work"].includes(label.toLowerCase())) {
+  if (label.toLowerCase().includes("work")) {
     return "default";
   }
 
-  if (["personal"].includes(label.toLowerCase())) {
+  if (label.toLowerCase().includes("personal")) {
     return "outline";
   }
 
   return "secondary";
+}
+
+function getBadgeTextFormatted(label: string) {
+  if (label.toLowerCase().includes("work")) {
+    return "Work";
+  }
+
+  if (label.toLowerCase().includes("personal")) {
+    return "Personal";
+  }
+
+  if (label.toLowerCase().includes("updates")) {
+    return "Updates";
+  }
+
+  if (label.toLowerCase().includes("forums")) {
+    return "Forums";
+  }
+
+  if (label.toLowerCase().includes("promotions")) {
+    return "Promotions";
+  }
+
+  if (label.toLowerCase().includes("social")) {
+    return "Social";
+  }
+
+  if (label.toLowerCase().includes("inbox")) {
+    return "Inbox";
+  }
+
+  return label;
 }

@@ -7,6 +7,7 @@ import {
   ArchiveX,
   Clock,
   Forward,
+  Loader2,
   MoreVertical,
   Reply,
   ReplyAll,
@@ -43,7 +44,12 @@ import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { cn } from "@/utils";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { postRequest } from "@/utils/api";
+import { SendEmailBody, SendEmailResponse } from "@/utils/gmail/mail";
+import { isError } from "@/utils/error";
+import { toastError, toastSuccess } from "@/components/Toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface MailDisplayProps {
   mail: GMailThread | null;
@@ -91,12 +97,20 @@ function formatPlainTextEmail(text: string): string {
   return formattedText;
 }
 
+function extractEmail(inputString: string): string | null {
+  const emailRegex = /\S+@\S+\.\S+/;
+  const match = inputString.match(emailRegex);
+  return match ? match[0] : null;
+}
+
 export function MailDisplay({ mail }: MailDisplayProps) {
   const today = new Date();
   const session = useSession();
+  const { toast } = useToast();
   const email = session.data?.user.email;
 
-  console.log(mail);
+  const [messageText, setMessageText] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
 
   useEffect(() => {
     const iframes = document.querySelectorAll("iframe");
@@ -122,7 +136,64 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         }
       };
     });
-  }, []);
+  }, [mail]);
+
+  const onReplyToEmail = async () => {
+    if (!mail) return;
+
+    setIsReplying(true);
+
+    const data = {
+      to: mail?.messages[mail.messages.length - 1].email,
+      subject: mail?.messages[0].subject,
+      messageText,
+      onReplyToEmail: {
+        threadId: mail?.id,
+        headerMessageId: mail?.messages[mail.messages.length - 1].messageId,
+        references: mail?.messages[mail.messages.length - 1].references,
+      },
+    };
+
+    console.log("data", data);
+    try {
+      const res = await postRequest<SendEmailResponse, SendEmailBody>(
+        "/api/google/messages/send",
+        data,
+      );
+      console.log("res", res);
+      if (isError(res)) {
+        toast({
+          title: "Error",
+          description: `There was an error sending the email :(`,
+        });
+        setIsReplying(false);
+      } else {
+        setIsReplying(false);
+        toast({ title: "Success", description: `Email sent!` });
+        setMessageText("");
+        mail.messages.push({
+          id: res.data.threadId || "",
+          name: session.data?.user.name || "",
+          email: session.data?.user.email || "",
+          subject: data.subject,
+          text: data.messageText,
+          date: new Date().toISOString(),
+          isHtmlEmail: false,
+          to: data.to,
+          read: false,
+          snippet: "",
+          labels: [],
+        });
+      }
+    } catch (error) {
+      setIsReplying(false);
+      console.error(error);
+      toast({
+        title: "Error",
+        description: `There was an error sending the email :(`,
+      });
+    }
+  };
 
   const createMarkup = (htmlContent: any) => {
     return { __html: DOMPurify.sanitize(htmlContent) };
@@ -324,11 +395,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                           key={message.id}
                           title={`Email Content ${index}`}
                           srcDoc={createMarkup(message.text).__html}
-                          className="w-full border-none"
+                          className="w-full rounded border-none"
                           sandbox="allow-same-origin"
-                          onLoad={(e) => {
-                            console.log("Iframe loaded:", e);
-                          }}
                           onError={(e) =>
                             console.error("Iframe load error:", e)
                           }
@@ -384,6 +452,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                 <Textarea
                   className="p-4"
                   placeholder={`Reply ${mail.messages[0].name}...`}
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
                 />
                 <div className="flex items-center">
                   <Label
@@ -393,8 +463,18 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                     <Switch id="mute" aria-label="Mute thread" /> Mute this
                     thread
                   </Label>
-                  <Button size="sm" className="ml-auto">
-                    Send
+                  <Button
+                    size="sm"
+                    className="ml-auto"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onReplyToEmail();
+                    }}
+                  >
+                    {isReplying && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    {isReplying ? "Sending..." : "Send"}
                   </Button>
                 </div>
               </div>
