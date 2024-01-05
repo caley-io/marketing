@@ -1,37 +1,33 @@
 <p align="center">
-  <a href="https://www.getinboxzero.com">
+  <a href="https://www.caley.ai">
     <h1 align="center">Caley.ai</h1>
   </a>
   <p align="center">
-    Open source email management tools to reach inbox zero fast.
+    The open-source email client for the modern era.
     <br />
-    <a href="https://www.getinboxzero.com">Website</a>
+    <a href="https://caley.io">Website</a>
     ·
-    <a href="https://www.getinboxzero.com/discord">Discord</a>
+    <a href="https://github.com/Magnet-wtf/caley.io/issues">Issues</a>
     ·
-    <a href="https://github.com/elie222/inbox-zero">Issues</a>
-    ·
-    <a href="https://www.getinboxzero.com/roadmap">Roadmap</a>
+    <a href="https://github.com/orgs/Magnet-wtf/projects/1/views/1?layout=board">Kanban</a>
   </p>
 </p>
 
 ## About
 
-Caley.ai is a powerful open-source tool designed for Gmail and Gsuite users. It streamlines your email management, helping you achieve 'Inbox Zero' swiftly with features like email analytics, newsletter management, and AI assistance. Enhance your email experience without replacing your client!
+Caley.io reimagines your inbox with a fusion of AI brilliance and unmatched efficiency. Think smarter analytics, streamlined conversations, and effortless newsletter management all in one sleek package. More than an email client,
+it's your unfair advantage.
 
-## Demo Video
-
-[![Caley.ai demo](/video-thumbnail.png)](http://www.youtube.com/watch?v=kc_9WZ1ZWyg)
+The repository is based on [Inbox Zero](https://github.com/elie222/inbox-zero/tree/main) Which as inspired the newsletter and stats features
 
 ## Key Features
 
-- **Email Analytics:** Track your email activity with daily, weekly, and monthly stats.
-- **Newsletter Management:** Easily manage and unsubscribe from newsletters.
-- **New Senders:** Identify and block new spam senders.
-- **Unreplied Emails:** Keep track of emails awaiting responses.
-- **Large Email Finder:** Free up space by locating and deleting large emails.
-- **AI Auto-Responder:** Automate responses for common queries.
-- **AI Email Assistant:** Auto-archive, label, and forward emails based on set rules.
+- **AI-Powered Efficiency**: Imagine an inbox that not only understands you but also acts on your behalf..
+- **Customized Email Responses**: Tailored AI-generated email responses in your unique style.
+- **Newsletter Management**: Simplify subscriptions with easy management and one-click unsubscribe.
+- **Inbox Analytics**: Gain actionable insights from advanced email analytics.
+- **Keyboard Command Center**: Control your inbox efficiently with intuitive keyboard shortcuts.
+- **Smart Calendar Integration**: Effortlessly synchronize and manage your calendar from your inbox.
 
 ## Built with
 
@@ -45,7 +41,7 @@ Caley.ai is a powerful open-source tool designed for Gmail and Gsuite users. It 
 
 ## Roadmap
 
-Explore our upcoming features and improvements on our [Roadmap](https://www.getinboxzero.com/roadmap). Your feedback and [feature requests](https://www.getinboxzero.com/feature-requests) are always welcome!
+Feel free to create Issues, feature requests or anything you have in mind
 
 ## Getting Started for Developers
 
