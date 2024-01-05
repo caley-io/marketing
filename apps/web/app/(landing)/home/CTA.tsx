@@ -1,4 +1,5 @@
 import { CTAButtons } from "@/app/(landing)/home/CTAButtons";
+import { Waitlist } from "./Waitlist";
 
 export function CTA() {
   return (
@@ -15,18 +16,21 @@ export function CTA() {
           }}
         />
       </div> */}
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-3xl text-center">
         <h2 className="font-cal text-3xl text-foreground sm:text-4xl">
-          Boost your productivity.
+          Elevate your inbox experience.
           <br />
-          Start using Caley.ai today.
+          Start using Caley.io today.
         </h2>
-        <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-foreground/60">
-          Caley.ai uses AI to help you empty your inbox daily. What previously
-          took hours, now takes minutes. Caley.ai is your virtual assistant for
-          emails.
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-foreground/60">
+          With Caley.io&apos;s transform your daily email routine from a chore
+          to a delight. Hours spent in your inbox are reduced to minutes.
+          Welcome to a world where email management is not just efficient, but
+          also intuitive and enjoyable.
+          <br />
+          Caley.io - Your gateway to smarteremailing.
         </p>
-        <CTAButtons />
+        <Waitlist />
       </div>
       {/* <div
         className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-1/2 transform-gpu overflow-hidden blur-3xl sm:block"

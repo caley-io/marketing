@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type NextAuthConfig, type DefaultSession, Account } from "next-auth";
 import { type JWT } from "@auth/core/jwt";
 import GoogleProvider from "next-auth/providers/google";
-import { createContact } from "@inboxzero/loops";
+import { createContact } from "@/utils/loops";
 import prisma from "@/utils/prisma";
 import { env } from "@/env.mjs";
 

@@ -21,7 +21,12 @@ import { AccountSwitcher } from "./account-switcher";
 import { Nav } from "./nav";
 import { cn } from "@/utils";
 import { Separator } from "@/components/ui/separator";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -278,10 +283,39 @@ export function Mail({
                 ]}
               />
               <Separator />
-              <div className="p-4">
-                <Button>
-                  <Pencil className="mr-2 h-4 w-4" /> Compose
-                </Button>
+              <div
+                data-collapsed={isCollapsed}
+                className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
+              >
+                <div className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+                  {isCollapsed ? (
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => false}
+                          size={"icon"}
+                          variant={"default"}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Compose</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="flex items-center gap-4"
+                      >
+                        Compose
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <div className="p-4">
+                      <Button>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Compose
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="p-4">

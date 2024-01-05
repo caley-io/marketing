@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { deleteContact } from "@inboxzero/loops";
+import { deleteContact } from "@/utils/loops";
 import {
   createFilterFromPrompt,
   type PromptQuery,

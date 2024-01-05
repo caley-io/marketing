@@ -68,7 +68,7 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <div className="relative isolate bg-background pb-20 pt-24 sm:pt-32">
+    <div className="relative isolate bg-black pb-20 pt-24 sm:pt-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-xl text-center">
           <h2 className="text-lg font-semibold leading-8 tracking-tight text-blue-600">

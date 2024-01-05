@@ -1,32 +1,35 @@
 import { Header } from "@/app/(landing)/home/Header";
 import { Hero } from "@/app/(landing)/home/Hero";
-// import { LogoCloud } from "@/app/(landing)/home/LogoCloud";
 import {
   Features,
   FeaturesAutomation,
+  FeaturesCalendar,
+  FeaturesKeyboard,
+  FeaturesNewsletter,
   FeaturesStats,
   FeaturesUnsubscribe,
 } from "@/app/(landing)/home/Features";
-import { Testimonials } from "@/app/(landing)/home/Testimonials";
 import { Pricing } from "@/app/(app)/premium/Pricing";
 import { FAQs } from "@/app/(landing)/home/FAQs";
 import { CTA } from "@/app/(landing)/home/CTA";
 import { Footer } from "@/app/(landing)/home/Footer";
-import { ThemeProvider } from "@/components/theme-provider";
 
 export default function Home() {
   return (
-    <div className="bg-background">
+    <div className="bg-black">
       <Header />
 
       <main className="isolate">
         <Hero />
         {/* <LogoCloud /> */}
-        <Testimonials />
+        {/* <Testimonials /> */}
         <Features />
         <FeaturesUnsubscribe />
         <FeaturesStats />
         <FeaturesAutomation />
+        <FeaturesNewsletter />
+        <FeaturesKeyboard />
+        <FeaturesCalendar />
         <Pricing />
         <FAQs />
         <CTA />

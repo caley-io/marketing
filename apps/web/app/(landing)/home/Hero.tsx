@@ -1,11 +1,14 @@
 import Image from "next/image";
 import { CTAButtons } from "@/app/(landing)/home/CTAButtons";
-import { SquaresPattern } from "@/app/(landing)/home/SquaresPattern";
 import { VideoDemo } from "@/app/(landing)/home/VideoDemo";
+import { Waitlist } from "./Waitlist";
 
 export function HeroText(props: { children: React.ReactNode }) {
   return (
-    <h1 className="font-cal text-4xl text-foreground sm:text-6xl" {...props} />
+    <h1
+      className="relative z-20 bg-gradient-to-b from-neutral-100 to-neutral-500 bg-clip-text font-cal text-4xl font-bold text-transparent sm:text-7xl"
+      {...props}
+    />
   );
 }
 
@@ -19,27 +22,33 @@ export function Hero(props: {
   image?: string;
 }) {
   return (
-    <div className="relative pt-14">
-      <SquaresPattern />
+    <div
+      className="relative flex items-center justify-center  bg-white pt-14 bg-dot-black/[0.3] dark:bg-black dark:bg-dot-white/[0.3]"
+      id="hero"
+    >
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
       <div className="pt-24 sm:pb-12 sm:pt-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           {/* <HeroTag /> */}
 
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto flex max-w-3xl flex-col items-center justify-center text-center">
             {/* <HeroText>{props.title || <HeroHeadingAB />}</HeroText> */}
             <HeroText>Emails</HeroText>
             <HeroText>But Smart and Beautiful</HeroText>
             <HeroSubtitle>
               {props.subtitle || (
                 <>
-                  AI superpowers, Conversations, Newsletter management, and
+                  AI Superpowers, Conversations, Newsletter management, and
                   email analytics.
                   <br />
                   Caley.ai is the open-source email client that you deserve.
                 </>
               )}
             </HeroSubtitle>
-            <CTAButtons />
+            {/* <CTAButtons /> */}
+            <div className="flex w-full flex-col items-center justify-center">
+              <Waitlist />
+            </div>
           </div>
 
           <div className="mt-16 flow-root sm:mt-24">
@@ -52,7 +61,7 @@ export function Hero(props: {
                 className="rounded-md shadow ring-1 ring-foreground/10"
               />
 
-              <VideoDemo />
+              {/* <VideoDemo /> */}
             </div>
           </div>
         </div>

@@ -1,12 +1,25 @@
+import { LampContainer, LampDemo } from "@/components/ui/lamp";
 import clsx from "clsx";
 import {
   BarChart2Icon,
+  Brain,
+  Calendar,
   EyeIcon,
+  Focus,
+  Gauge,
+  HardDrive,
+  Keyboard,
   LineChart,
   LucideIcon,
   MousePointer2Icon,
+  Newspaper,
   Orbit,
+  PersonStanding,
+  Rocket,
+  Space,
   Sparkles,
+  Timer,
+  Workflow,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -81,8 +94,9 @@ function FeaturesOld() {
 
 export function Features() {
   return (
-    <div className="bg-background py-24 sm:py-32" id="features">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <div className="bg-black py-24 sm:py-32" id="features">
+      <LampDemo />
+      {/* <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
           <h2 className="font-cal text-base leading-7 text-blue-600">
             Privacy first
@@ -97,7 +111,7 @@ export function Features() {
             Zero on your own infrastructure.
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -115,9 +129,9 @@ export function FeaturesWithImage(props: {
   }[];
 }) {
   return (
-    <div className="overflow-hidden bg-background py-24 sm:py-32">
+    <div className="overflow-hidden bg-black py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+        <div className="mx-auto grid max-w-2xl grid-cols-1 items-center justify-center gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
           <div
             className={clsx(
               "lg:pt-4",
@@ -127,7 +141,7 @@ export function FeaturesWithImage(props: {
             )}
           >
             <div className="lg:max-w-lg">
-              <h2 className="font-cal text-base leading-7 text-blue-600">
+              <h2 className="inline-block bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text font-cal text-base leading-7 text-transparent">
                 {props.title}
               </h2>
               <p className="mt-2 font-cal text-3xl text-foreground sm:text-4xl">
@@ -154,17 +168,18 @@ export function FeaturesWithImage(props: {
           </div>
           <div
             className={clsx(
-              "flex items-start",
+              "relative flex items-start",
               props.imageSide === "left"
                 ? "justify-end lg:order-first"
                 : "justify-start lg:order-last",
             )}
           >
-            <div className="rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-foreground/20 lg:rounded-2xl lg:p-4">
+            <div className="relative rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-foreground/20 lg:rounded-2xl lg:p-4">
+              <div className="absolute inset-0 h-full w-full scale-[0.90] transform rounded-full bg-red-500 bg-gradient-to-r from-blue-500 to-teal-500 blur-3xl" />
               <Image
                 src={props.image}
                 alt="Product screenshot"
-                className="w-[48rem] max-w-none rounded-xl shadow-2xl ring-1 ring-foreground/20 sm:w-[57rem]"
+                className="relative w-[48rem] max-w-none rounded-xl shadow-2xl ring-1 ring-foreground/20 sm:w-[57rem]"
                 width={2400}
                 height={1800}
               />
@@ -176,24 +191,102 @@ export function FeaturesWithImage(props: {
   );
 }
 
+const featuresCalendar = [
+  {
+    name: "Automated Event Creation",
+    description:
+      "Convert email plans into calendar events effortlessly. Let AI detect and set up your meetings from your conversations.",
+    icon: Calendar,
+  },
+  {
+    name: "Seamless Synchronization",
+    description:
+      "Keep your schedule in sync. Caley.ai intelligently integrates with your existing calendar, ensuring no overlap or scheduling conflicts.",
+    icon: Workflow,
+  },
+];
+
+export function FeaturesCalendar() {
+  return (
+    <FeaturesWithImage
+      imageSide="right"
+      title="Smart Calendar Integration"
+      subtitle="Orchestrate Your Schedule with Precision"
+      description="Transform your email conversations into a perfectly synchronized calendar. AI-driven scheduling at its best."
+      image="/images/keyboard.png"
+      features={featuresCalendar}
+    />
+  );
+}
+
+const featuresKeyboard = [
+  {
+    name: "Streamlined Email Management",
+    description:
+      "Harness the power of keyboard shortcuts for rapid email processing. From composing to organizing, transform your keyboard into a command center.",
+    icon: Keyboard,
+  },
+  {
+    name: "Focused Workflow",
+    description:
+      "Enhance your productivity by minimizing reliance on mouse clicks. Navigate your inbox and execute tasks fluidly with intuitive keystrokes.",
+    icon: Focus,
+  },
+];
+
+export function FeaturesKeyboard() {
+  return (
+    <FeaturesWithImage
+      imageSide="left"
+      title="Keyboard Command Center"
+      subtitle="Efficient Control at Your Fingertips"
+      description="Step into a world where your keyboard does it all. Email management has never been this effortless."
+      image="/images/keyboard.png"
+      features={featuresKeyboard}
+    />
+  );
+}
+
+const featuresNewsletter = [
+  {
+    name: "Discover Email Dynamics",
+    description:
+      "Analyze your communication patterns. Identify who you interact with the most and the nature of your incoming emails, using these insights to optimize your email strategy.",
+    icon: Rocket,
+  },
+  {
+    name: "Data-Driven Decisions",
+    description:
+      "Transform complex analytics into actionable intelligence. Make strategic choices about managing your emails for a more efficient approach to communication.",
+    icon: HardDrive,
+  },
+];
+
+export function FeaturesNewsletter() {
+  return (
+    <FeaturesWithImage
+      imageSide="right"
+      title="Inbox Analytics"
+      subtitle="Gain Deep Insights into Your Email Trends"
+      description="Unlock the secrets of your inbox. Turn insights into strategies for smarter email management."
+      image="/images/stats.png"
+      features={featuresNewsletter}
+    />
+  );
+}
+
 const featuresAutomations = [
   {
-    name: "Automate your replies",
+    name: "One-Click Unsubscribe",
     description:
-      "Our AI agent will reply, forward, or archive emails based on the rules you provide it.",
-    icon: Sparkles,
+      "Simplify your inbox by unsubscribing from unwanted emails effortlessly. Manage your subscriptions with a single click for a cleaner email experience.",
+    icon: Newspaper,
   },
   {
-    name: "Planning mode",
+    name: "Analytic Insights",
     description:
-      "Let our AI plan what to do for you. Accept or reject in a click. Turn on full automation once you're confident the AI can work on its own.",
-    icon: Orbit,
-  },
-  {
-    name: "Instruct in plain English",
-    description:
-      "It's as easy as talking to an assistant or sending a prompt to ChatGPT.",
-    icon: LineChart,
+      "Gain visibility into your subscription habits. Understand who sends the most and make informed decisions about your inbox clutter.",
+    icon: Gauge,
   },
 ];
 
@@ -201,10 +294,12 @@ export function FeaturesAutomation() {
   return (
     <FeaturesWithImage
       imageSide="left"
-      title="Automate your inbox"
-      subtitle="Your AI assistant for email"
-      description="Keep getting emails that require the same response? Let Caley.ai handle it."
-      image="/images/rules.png"
+      title="Newsletter Management"
+      subtitle="Master Your Inbox Subscriptions"
+      description="Transform the way you handle subscriptions. A clutter-free inbox is just a click away.
+
+      "
+      image="/images/newsletters.png"
       features={featuresAutomations}
     />
   );
@@ -212,22 +307,16 @@ export function FeaturesAutomation() {
 
 const featuresStats = [
   {
-    name: "Who emails you most",
+    name: "Tailored Communication",
     description:
-      "Someone emailing you too much? Figure out a plan to handle this better.",
+      "Our AI mimics your unique writing style, delivering personalized, authentic responses. Make every automated reply feel genuinely yours.",
     icon: Sparkles,
   },
   {
-    name: "Who you email most",
+    name: "Intelligent Responses",
     description:
-      "If there's one person you're constantly speaking to is there a better way for you to speak?",
+      "Effortlessly communicate with AI that grasps the context and tone, ensuring your messages resonate with each recipient.",
     icon: Orbit,
-  },
-  {
-    name: "What type of emails you get",
-    description:
-      "Getting a lot of newsletters or cold emails? Try automatically archiving and labelling them with our AI.",
-    icon: LineChart,
   },
 ];
 
@@ -235,9 +324,9 @@ export function FeaturesStats() {
   return (
     <FeaturesWithImage
       imageSide="right"
-      title="Inbox Analytics"
-      subtitle="Understand your inbox"
-      description="Understanding your inbox is the first step to dealing with it. Understand what is filling up your inbox. Then figure out an action plan to deal with it."
+      title="Customized Email Responses"
+      subtitle="Craft Perfect Replies with AI"
+      description="Experience the future of emailing with AI-crafted responses that speak in your voice. Tailored, intelligent, and uniquely yours."
       image="/images/stats.png"
       features={featuresStats}
     />
@@ -246,22 +335,16 @@ export function FeaturesStats() {
 
 const featuresUnsubscribe = [
   {
-    name: "One-click unsubscribe",
+    name: "Time-Saving Intelligence",
     description:
-      "Don't search for the unsubscribe button. Unsubscribe with a single click or auto archive emails instead.",
-    icon: MousePointer2Icon,
+      "Let our AI be your personal email wizard. It learns your habits, sorts your emails, and prioritizes your tasks, freeing you to focus on high-impact work.",
+    icon: Timer,
   },
   {
-    name: "See who emails you most",
+    name: "Smart Interaction",
     description:
-      "See who's sending you the most marketing and newsletter emails to prioritise who to unsubscribe from.",
-    icon: EyeIcon,
-  },
-  {
-    name: "How often they email",
-    description:
-      "View analytic charts to see how often you get emails from certain senders to take action.",
-    icon: BarChart2Icon,
+      "Engage in a dynamic email experience where AI suggestions are so intuitive, they feel like second nature. Automated yet personalized, this is where your emails become a breeze to handle.",
+    icon: Brain,
   },
 ];
 
@@ -269,9 +352,9 @@ export function FeaturesUnsubscribe() {
   return (
     <FeaturesWithImage
       imageSide="left"
-      title="Newsletter Management"
-      subtitle="Clean up your subscriptions"
-      description="See all newsletter and marketing subscriptions in one place. Unsubscribe in a click."
+      title="AI-Powered Efficiency"
+      subtitle="Unleash the Potential of Your Inbox"
+      description="Imagine an inbox that not only understands you but also acts on your behalf. With Caley.io, dive into an email experience where AI does the heavy lifting. It's not just about managing emails; it's about reclaiming your time and focusing on what truly matters."
       image="/images/newsletters.png"
       features={featuresUnsubscribe}
     />

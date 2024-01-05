@@ -80,6 +80,15 @@ model User {
   newsletters   Newsletter[]
 }
 
+model WaitlistUser {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  email      String   @unique
+  invited    Boolean  @default(false)
+  inviteCode String?  @unique
+}
+
 // not in use as it's only used for passwordless login
 model VerificationToken {
   identifier String
