@@ -28,6 +28,7 @@
                 "SENTRY_AUTH_TOKEN",
                 "SENTRY_ORGANIZATION",
                 "SENTRY_PROJECT",
+                "LOOPS_API_KEY",
                 "NEXT_PUBLIC_PRO_PAYMENT_LINK",
                 "NEXT_PUBLIC_LIFETIME_PAYMENT_LINK",
                 "NEXT_PUBLIC_LIFETIME_PLAN_ID",
