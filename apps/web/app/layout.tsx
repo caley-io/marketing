@@ -21,7 +21,7 @@ const calFont = localFont({
   display: "swap",
 });
 
-const title = "Caley.ai";
+const title = "Caley.io";
 const description = "Email, but smart and beautiful.";
 
 export const metadata: Metadata = {

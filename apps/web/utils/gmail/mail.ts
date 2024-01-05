@@ -54,7 +54,7 @@ const createRawMailMessage = async (body: SendEmailBody) => {
       : "",
     inReplyTo: body.replyToEmail ? body.replyToEmail.headerMessageId : "",
     headers: {
-      "X-Mailer": "Caley.ai Web",
+      "X-Mailer": "Caley.io Web",
     },
   });
 };

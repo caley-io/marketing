@@ -41,7 +41,7 @@ export function Hero(props: {
                   AI Superpowers, Conversations, Newsletter management, and
                   email analytics.
                   <br />
-                  Caley.ai is the open-source email client that you deserve.
+                  Caley.io is the open-source email client that you deserve.
                 </>
               )}
             </HeroSubtitle>

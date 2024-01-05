@@ -2,7 +2,7 @@ const faqs = [
   {
     question: "Do you store my emails?",
     answer:
-      "We store a hashed version of your emails for our analytics feature. As our code is open-source you can check our code to see this for yourself. For full data privacy you can self-host your own instance of Caley.ai.",
+      "We store a hashed version of your emails for our analytics feature. As our code is open-source you can check our code to see this for yourself. For full data privacy you can self-host your own instance of Caley.io.",
   },
   {
     question: "Is the code open-source?",
@@ -45,7 +45,7 @@ const faqs = [
     ),
   },
   {
-    question: "Which email providers does Caley.ai support?",
+    question: "Which email providers does Caley.io support?",
     answer:
       "We only support Gmail and Gsuite email accounts today. We may add support for other email providers such as Outlook in the future.",
   },

@@ -13,7 +13,7 @@ export function Celebration(props: {}) {
   return (
     <>
       <div className="mt-20 flex items-center justify-center text-lg font-semibold text-gray-900">
-        Congrats! You made it to Caley.ai!
+        Congrats! You made it to Caley.io!
       </div>
       <div className="flex items-center justify-center">
         <Confetti

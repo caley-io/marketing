@@ -12,7 +12,7 @@ import { LoadStats } from "@/providers/StatLoaderProvider";
 
 export const metadata: Metadata = {
   title: "Welcome",
-  description: "Get started with Caley.ai",
+  description: "Get started with Caley.io",
 };
 
 export default async function WelcomePage({
@@ -42,7 +42,7 @@ export default async function WelcomePage({
 
         <Card className="mx-auto flex max-w-2xl flex-col justify-center space-y-6 p-10 duration-500 animate-in fade-in">
           <div className="flex flex-col text-center">
-            <PageHeading>Welcome to Caley.ai</PageHeading>
+            <PageHeading>Welcome to Caley.io</PageHeading>
             <TypographyP className="mt-2">Clean your inbox, fast.</TypographyP>
             <div className="mt-4">
               <OnboardingForm questionIndex={questionIndex} />

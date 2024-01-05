@@ -69,7 +69,7 @@ export function Footer() {
           Made with ❤️ in South of France.
         </p>
         <p className="mt-4 text-center text-xs leading-5 text-gray-500">
-          &copy; {new Date().getFullYear()} Caley.ai. All rights reserved.
+          &copy; {new Date().getFullYear()} Caley.io. All rights reserved.
         </p>
       </div>
     </footer>

@@ -55,7 +55,7 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Your weekly email stats from Caley.ai.</Preview>
+      <Preview>Your weekly email stats from Caley.io.</Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
@@ -65,7 +65,7 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
                   src={`${baseUrl}/icon.png`}
                   width="40"
                   height="40"
-                  alt="Caley.ai"
+                  alt="Caley.io"
                   className="mx-auto my-0"
                 />
               </Link>
@@ -73,11 +73,11 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
 
             <Section>
               <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0 text-center">
-                Your weekly email stats from Caley.ai
+                Your weekly email stats from Caley.io
               </Heading>
 
               <Text style={paragraph}>
-                Here are your weekly email stats from Caley.ai!
+                Here are your weekly email stats from Caley.io!
               </Text>
 
               <Text style={paragraph}>
@@ -146,7 +146,7 @@ export default function StatsUpdateEmail(props: StatsUpdateEmailProps) {
             <Section>
               <Text>
                 You're receiving this email because you're subscribed to
-                Caley.ai stats updates. You can change this in your{" "}
+                Caley.io stats updates. You can change this in your{" "}
                 <Link
                   href={`${baseUrl}/settings#email-updates`}
                   className="text-[15px]"

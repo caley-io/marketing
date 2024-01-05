@@ -23,7 +23,7 @@ const tiers = [
     id: "tier-free",
     href: "/welcome",
     price: { monthly: "$0", annually: "$0" },
-    description: "Try Caley.ai for free.",
+    description: "Try Caley.io for free.",
     features: [
       `Unsubscribe from ${env.NEXT_PUBLIC_UNSUBSCRIBE_CREDITS} emails per month`,
       "Email analytics",
@@ -67,7 +67,7 @@ const LIFETIME_PRICE = 179;
 const LIFETIME_LINK = env.NEXT_PUBLIC_LIFETIME_PAYMENT_LINK;
 
 const lifetimeFeatures = [
-  "Everything in Caley.ai Pro",
+  "Everything in Caley.io Pro",
   "Priority support",
   "$100 of AI credits",
   "Early access to new features",
@@ -233,7 +233,7 @@ function LifetimePricing() {
                 </div>
               </h3>
               <p className="mt-4 text-base leading-7 text-slate-500">
-                Get lifetime access to Caley.ai Pro for a one-time payment. This
+                Get lifetime access to Caley.io Pro for a one-time payment. This
                 includes $100 in AI credits.
               </p>
               <div className="mt-10 flex items-center gap-x-4">
@@ -263,7 +263,7 @@ function LifetimePricing() {
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black px-6 py-8 text-center shadow-xl ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
                 <div className="mx-auto max-w-xs px-8">
                   <p className="text-base font-semibold text-white">
-                    Lifetime access to Caley.ai
+                    Lifetime access to Caley.io
                   </p>
                   <p className="mt-6 flex items-baseline justify-center gap-x-2">
                     <span className="text-5xl font-bold tracking-tight text-white">
@@ -310,7 +310,7 @@ function OldLifetime() {
             </div>
           </h3>
           <p className="mt-6 text-base leading-7 text-gray-600">
-            Get lifetime access to Caley.ai Pro for a one-time payment. This
+            Get lifetime access to Caley.io Pro for a one-time payment. This
             includes $100 in AI credits.
           </p>
           <div className="mt-10 flex items-center gap-x-4">
@@ -339,7 +339,7 @@ function OldLifetime() {
             <div className="absolute inset-0 h-full w-full scale-[0.80] transform rounded-full bg-red-500 bg-gradient-to-r from-blue-500 to-teal-500 blur-3xl" />
             <div className="mx-auto max-w-xs px-8">
               <p className="text-base font-semibold text-gray-600">
-                Lifetime access to Caley.ai
+                Lifetime access to Caley.io
               </p>
               <p className="mt-6 flex items-baseline justify-center gap-x-2">
                 <span className="text-5xl font-bold tracking-tight text-gray-900">

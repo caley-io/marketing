@@ -27,19 +27,19 @@ const features = [
   {
     name: "Reply Automatically",
     description:
-      "Tell Caley.ai how to handle your emails and it will do it for you. Automatically reply, archive, and label emails based on your instructions.",
+      "Tell Caley.io how to handle your emails and it will do it for you. Automatically reply, archive, and label emails based on your instructions.",
     icon: Sparkles,
   },
   {
     name: "Automatically archive cold emails",
     description:
-      "Sick of cold emails? Caley.ai can automatically archive and label them for you so they don't clog your inbox.",
+      "Sick of cold emails? Caley.io can automatically archive and label them for you so they don't clog your inbox.",
     icon: Orbit,
   },
   {
     name: "Explain it in plain English",
     description:
-      "Tell Caley.ai how to handle your emails in plain English. It's as simple as writing to an assistant or ChatGPT.",
+      "Tell Caley.io how to handle your emails in plain English. It's as simple as writing to an assistant or ChatGPT.",
     icon: LineChart,
   },
 ];
@@ -106,7 +106,7 @@ export function Features() {
             host it yourself.
           </p>
           <p className="mt-6 text-lg leading-8 text-foreground/60">
-            Caley.ai has undergone a thorough security process with Google to
+            Caley.io has undergone a thorough security process with Google to
             ensure the protection of your emails. You can even self-host Inbox
             Zero on your own infrastructure.
           </p>
@@ -201,7 +201,7 @@ const featuresCalendar = [
   {
     name: "Seamless Synchronization",
     description:
-      "Keep your schedule in sync. Caley.ai intelligently integrates with your existing calendar, ensuring no overlap or scheduling conflicts.",
+      "Keep your schedule in sync. Caley.io intelligently integrates with your existing calendar, ensuring no overlap or scheduling conflicts.",
     icon: Workflow,
   },
 ];

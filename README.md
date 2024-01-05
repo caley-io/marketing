@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://www.caley.ai">
-    <h1 align="center">Caley.ai</h1>
+  <a href="https://www.caley.io">
+    <h1 align="center">Caley.io</h1>
   </a>
   <p align="center">
     The open-source email client for the modern era.
