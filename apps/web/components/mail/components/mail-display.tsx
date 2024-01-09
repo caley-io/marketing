@@ -196,6 +196,11 @@ export function MailDisplay({ mail }: MailDisplayProps) {
     }
   };
 
+  const getMessageSenderFirstName = (message: GMailMessage): string => {
+    const name = message.name.split(" ")[0] || "";
+    return name;
+  };
+
   const createMarkup = (htmlContent: any) => {
     return { __html: DOMPurify.sanitize(htmlContent) };
   };
@@ -422,14 +427,30 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                         ></iframe>
                       </div>
                     ) : (
-                      <div
-                        className={"rounded-xl border p-4 text-sm"}
-                        dangerouslySetInnerHTML={{
-                          __html: formatPlainTextEmail(
-                            extractLatestReply(message.text),
-                          ),
-                        }}
-                      />
+                      <>
+                        <div
+                          className={"rounded-xl border p-4 text-sm"}
+                          dangerouslySetInnerHTML={{
+                            __html: formatPlainTextEmail(
+                              extractLatestReply(message.text),
+                            ),
+                          }}
+                        />
+                        <div
+                          className={
+                            "ml-auto justify-end p-2 text-xs text-muted-foreground"
+                          }
+                        >
+                          {message.email.includes(email || "")
+                            ? "You"
+                            : getMessageSenderFirstName(message)}
+
+                          {", "}
+                          {formatDistanceToNow(new Date(message.date), {
+                            addSuffix: true,
+                          })}
+                        </div>
+                      </>
                     )}
                   </div>
                 ))}
@@ -450,11 +471,30 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                   />
                 ) : (
                   <div
-                    className="p-4 text-sm"
-                    dangerouslySetInnerHTML={{
-                      __html: formatPlainTextEmail(mail.messages[0].text),
-                    }}
-                  />
+                    className="m-4 flex flex-col justify-start"
+                    key={mail.messages[0].id}
+                  >
+                    <div
+                      className="rounded-xl border p-4 text-sm"
+                      dangerouslySetInnerHTML={{
+                        __html: formatPlainTextEmail(mail.messages[0].text),
+                      }}
+                    />
+                    <div
+                      className={
+                        "ml-auto justify-end p-2 text-xs text-muted-foreground"
+                      }
+                    >
+                      {mail.messages[0].email.includes(email || "")
+                        ? "You"
+                        : getMessageSenderFirstName(mail.messages[0])}
+
+                      {", "}
+                      {formatDistanceToNow(new Date(mail.messages[0].date), {
+                        addSuffix: true,
+                      })}
+                    </div>
+                  </div>
                 )}
               </>
             )}
