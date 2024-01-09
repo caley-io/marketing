@@ -275,21 +275,20 @@ export function CommandK() {
   const focusedThread = useAtomValue(focusedThreadAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
 
-  const handleMarkAsRead = async (threadId: string) => {
-    await postRequest("/api/google/threads/mark-as-read", { id: threadId });
-    focusedThread?.messages.forEach((message) => {
-      message.read = true;
-    });
-  };
-
-  const handleMarkAsUnread = async (threadId: string) => {
-    await postRequest("/api/google/threads/mark-as-unread", { id: threadId });
-    focusedThread?.messages.forEach((message) => {
-      message.read = false;
-    });
-  };
-
   React.useEffect(() => {
+    const handleMarkAsRead = async (threadId: string) => {
+      await postRequest("/api/google/threads/mark-as-read", { id: threadId });
+      focusedThread?.messages.forEach((message) => {
+        message.read = true;
+      });
+    };
+
+    const handleMarkAsUnread = async (threadId: string) => {
+      await postRequest("/api/google/threads/mark-as-unread", { id: threadId });
+      focusedThread?.messages.forEach((message) => {
+        message.read = false;
+      });
+    };
     const down = async (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -428,8 +427,6 @@ export function CommandK() {
     focusedThread,
     composeOpen,
     setComposeOpen,
-    handleMarkAsRead,
-    handleMarkAsUnread,
   ]);
 
   return (
