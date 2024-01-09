@@ -50,6 +50,9 @@ import { SendEmailBody, SendEmailResponse } from "@/utils/gmail/mail";
 import { isError } from "@/utils/error";
 import { toastError, toastSuccess } from "@/components/Toast";
 import { useToast } from "@/components/ui/use-toast";
+import useSWR from "swr";
+import { fetcher } from "@/providers/SWRProvider";
+import { Dropdown } from "react-day-picker";
 
 interface MailDisplayProps {
   mail: GMailThread | null;
@@ -154,13 +157,11 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       },
     };
 
-    console.log("data", data);
     try {
       const res = await postRequest<SendEmailResponse, SendEmailBody>(
         "/api/google/messages/send",
         data,
       );
-      console.log("res", res);
       if (isError(res)) {
         toast({
           title: "Error",
@@ -329,7 +330,20 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Mark as unread</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async (e) => {
+                e.preventDefault();
+                const threadId = mail?.id;
+                await postRequest("/api/google/threads/mark-as-unread", {
+                  id: threadId,
+                });
+                mail?.messages.forEach((message) => {
+                  message.read = true;
+                });
+              }}
+            >
+              Mark as unread
+            </DropdownMenuItem>
             <DropdownMenuItem>Star thread</DropdownMenuItem>
             <DropdownMenuItem>Add label</DropdownMenuItem>
             <DropdownMenuItem>Mute thread</DropdownMenuItem>

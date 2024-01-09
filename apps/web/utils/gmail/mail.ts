@@ -64,7 +64,6 @@ const createRawMailMessage = async (body: SendEmailBody) => {
 export async function sendEmail(gmail: gmail_v1.Gmail, body: SendEmailBody) {
   const raw = await createRawMailMessage(body);
 
-  console.log("sendEmail", body);
   const result = await gmail.users.messages.send({
     userId: "me",
     requestBody: {

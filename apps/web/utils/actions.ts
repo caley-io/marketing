@@ -26,6 +26,9 @@ import { getGmailClient } from "@/utils/gmail/client";
 import { trashThread } from "@/utils/gmail/trash";
 import { env } from "@/env.mjs";
 import { isPremium } from "@/utils/premium";
+import { archiveEmail } from "@/app/api/google/threads/archive/controller";
+import { markAsUnread } from "@/app/api/google/threads/mark-as-unread/controller";
+import { markAsRead } from "@/app/api/google/threads/mark-as-read/controller";
 
 export async function createFilterFromPromptAction(body: PromptQuery) {
   return createFilterFromPrompt(body);
@@ -54,9 +57,17 @@ export async function labelThreadsAction(options: {
   );
 }
 
-// export async function archiveThreadAction(options: { threadId: string }) {
-//   return await archiveEmail({ id: options.threadId })
-// }
+export async function archiveThreadAction(options: { threadId: string }) {
+  return await archiveEmail({ id: options.threadId });
+}
+
+export async function markAsReadAction(options: { threadId: string }) {
+  return await markAsRead({ id: options.threadId });
+}
+
+export async function markAsUnreadAction(options: { threadId: string }) {
+  return await markAsUnread({ id: options.threadId });
+}
 
 const saveAboutBody = z.object({
   about: z.string(),

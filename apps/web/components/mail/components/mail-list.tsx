@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtom } from "jotai";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
-import { configAtom } from "@/utils/store";
+import { configAtom, focusedThreadAtom } from "@/utils/store";
+import { set } from "lodash";
+import { postRequest } from "@/utils/api";
+import useSWR, { useSWRConfig } from "swr";
+import { fetcher } from "@/providers/SWRProvider";
 
 interface MailListProps {
   items: GMailThread[];
@@ -17,14 +21,16 @@ interface MailListProps {
 export function MailList({ items }: MailListProps) {
   const [mail, setMail] = useAtom(configAtom);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const { mutate } = useSWR("api/google/threads", fetcher);
 
   useEffect(() => {
     itemRefs.current = itemRefs.current.slice(0, items.length);
   }, [items]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.key === "j") {
         setFocusedIndex((prev) => {
           const nextIndex = prev < items.length - 1 ? prev + 1 : prev;
@@ -37,6 +43,7 @@ export function MailList({ items }: MailListProps) {
               block: "nearest",
             });
           }
+          setFocusedThread(items[nextIndex]);
           return nextIndex;
         });
       } else if (e.key === "k") {
@@ -51,10 +58,18 @@ export function MailList({ items }: MailListProps) {
               block: "nearest",
             });
           }
+          setFocusedThread(items[nextIndex]);
           return nextIndex;
         });
       } else if (e.key === "Enter" && focusedIndex !== -1) {
         const selectedItem = items[focusedIndex];
+        const threadId = selectedItem.id;
+        await postRequest("/api/google/threads/mark-as-read", { id: threadId });
+        selectedItem.messages.forEach((message) => {
+          message.read = true;
+        });
+
+        mutate({ ...items, selectedItem });
         setMail({
           mail: selectedItem,
           selected: selectedItem.id,
@@ -67,7 +82,7 @@ export function MailList({ items }: MailListProps) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [items, setMail, focusedIndex]);
+  }, [items, setMail, focusedIndex, mutate, setFocusedThread]);
   return (
     <ScrollArea className="h-screen pb-32">
       <div className="flex flex-col gap-2 p-4 pt-0">
@@ -80,12 +95,21 @@ export function MailList({ items }: MailListProps) {
               mail.selected === item.id && "bg-muted",
               focusedIndex === index && "bg-muted/60",
             )}
-            onClick={() =>
+            onClick={async () => {
+              const threadId = item.id;
+              await postRequest("/api/google/threads/mark-as-read", {
+                id: threadId,
+              });
+              item.messages.forEach((message) => {
+                message.read = true;
+              });
+
+              mutate({ ...items, item });
               setMail({
                 mail: item,
                 selected: item.id,
-              })
-            }
+              });
+            }}
           >
             <div className="flex w-full flex-col gap-1">
               <div className="flex items-center">

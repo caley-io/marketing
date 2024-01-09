@@ -10,17 +10,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Tab, Tabs } from "@/utils/store";
 
 interface NavProps {
   isCollapsed: boolean;
   selectedTab: string;
-  setSelectedTab: (tab: string) => void;
-  links: {
-    title: string;
-    label?: string;
-    icon: LucideIcon;
-    variant: "default" | "ghost";
-  }[];
+  setSelectedTab: (tab: Tabs) => void;
+  links: Tab[];
 }
 
 export function Nav({

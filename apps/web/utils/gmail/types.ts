@@ -73,8 +73,6 @@ export const parseGmailMessagesToProperType = (messages: any) => {
     const readStatus = !message.labelIds.includes("UNREAD");
     const date = new Date(parseInt(message.internalDate)).toLocaleDateString();
 
-    console.log("[GMAIL MESSAGE]", message);
-
     const htmlContent = decodeHtmlPart(payload.parts);
     const textContent = decodeTextPart(payload.parts);
     const isHtmlEmail =

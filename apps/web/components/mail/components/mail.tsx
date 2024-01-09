@@ -32,9 +32,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import useSWR from "swr";
-import { configAtom } from "@/utils/store";
+import { configAtom, tabAtom } from "@/utils/store";
 import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
@@ -67,7 +67,7 @@ export function Mail({
   });
 
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
-  const [selectedTab, setSelectedTab] = React.useState("Inbox");
+  const [selectedTab, setSelectedTab] = useAtom(tabAtom);
 
   const mail = useAtomValue(configAtom);
 
