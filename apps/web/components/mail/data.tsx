@@ -175,8 +175,8 @@ export type Mail = (typeof mails)[number];
 
 export const accounts = [
   {
-    label: "Alicia Koch",
-    email: "alicia@example.com",
+    label: "Jeremy Scatigna",
+    email: "jeremy@magnet.wtf",
     icon: (
       <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <title>Vercel</title>
@@ -185,8 +185,8 @@ export const accounts = [
     ),
   },
   {
-    label: "Alicia Koch",
-    email: "alicia@gmail.com",
+    label: "Jeremy Scatigna",
+    email: "scatignaj@gmail.com",
     icon: (
       <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <title>Gmail</title>
@@ -198,8 +198,8 @@ export const accounts = [
     ),
   },
   {
-    label: "Alicia Koch",
-    email: "alicia@me.com",
+    label: "Jeremy Scatigna",
+    email: "jeremy@subtledev.co",
     icon: (
       <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <title>iCloud</title>

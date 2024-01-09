@@ -75,7 +75,7 @@ export const Input = (props: InputProps) => {
               />
             ) : (
               <Component
-                className="block w-full flex-1 rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm"
+                className="block w-full flex-1 rounded-md border-input bg-background shadow-sm focus:border-accent focus:ring-accent sm:text-sm"
                 {...inputProps}
               />
             )}

@@ -41,7 +41,12 @@ import {
   Forward,
 } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
-import { Tab, focusedThreadAtom, tabAtom } from "@/utils/store";
+import {
+  Tab,
+  focusedThreadAtom,
+  openComposeAtom,
+  tabAtom,
+} from "@/utils/store";
 import { markAsReadAction, markAsUnreadAction } from "@/utils/actions";
 import { postRequest } from "@/utils/api";
 import { EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
@@ -268,6 +273,7 @@ export function CommandK() {
   const [lastKeyPressed, setLastKeyPressed] = React.useState("");
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const focusedThread = useAtomValue(focusedThreadAtom);
+  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
 
   const handleMarkAsRead = async (threadId: string) => {
     await postRequest("/api/google/threads/mark-as-read", { id: threadId });
@@ -346,8 +352,9 @@ export function CommandK() {
           (action) => action.shortcut === shortcut,
         );
         if (createAction) {
-          // Execute the action's logic here (e.g., setOpen(false))
-          // For now, just closing the dialog
+          if (createAction.title === "New email") {
+            setComposeOpen(true);
+          }
           setOpen(false);
         }
         setLastKeyPressed(""); // Reset the last key pressed
@@ -410,9 +417,20 @@ export function CommandK() {
       }
     };
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, [setSelectedTab, setOpen, lastKeyPressed, focusedThread]);
+    if (!composeOpen) {
+      document.addEventListener("keydown", down);
+      return () => document.removeEventListener("keydown", down);
+    }
+  }, [
+    setSelectedTab,
+    setOpen,
+    lastKeyPressed,
+    focusedThread,
+    composeOpen,
+    setComposeOpen,
+    handleMarkAsRead,
+    handleMarkAsUnread,
+  ]);
 
   return (
     <>

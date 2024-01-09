@@ -41,3 +41,5 @@ export const configAtom = atom<Config>({
 export const tabAtom = atom<Tabs>("Inbox");
 
 export const focusedThreadAtom = atom<GMailThread | null>(null);
+
+export const openComposeAtom = atom<boolean>(false);

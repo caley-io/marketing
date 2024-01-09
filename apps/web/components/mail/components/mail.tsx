@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/resizable";
 import { useAtom, useAtomValue } from "jotai";
 import useSWR from "swr";
-import { configAtom, tabAtom } from "@/utils/store";
+import { configAtom, openComposeAtom, tabAtom } from "@/utils/store";
 import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
@@ -68,6 +68,7 @@ export function Mail({
 
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
+  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
 
   const mail = useAtomValue(configAtom);
 
@@ -292,7 +293,10 @@ export function Mail({
                     <Tooltip delayDuration={0}>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => false}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setComposeOpen(true);
+                          }}
                           size={"icon"}
                           variant={"default"}
                         >
@@ -309,7 +313,12 @@ export function Mail({
                     </Tooltip>
                   ) : (
                     <div className="p-4">
-                      <Button>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setComposeOpen(true);
+                        }}
+                      >
                         <Pencil className="mr-2 h-4 w-4" />
                         Compose
                       </Button>

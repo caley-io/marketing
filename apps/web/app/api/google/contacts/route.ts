@@ -17,9 +17,6 @@ async function getContacts(client: people_v1.People, query: string) {
 }
 
 export const GET = withError(async (request) => {
-  if (!env.NEXT_PUBLIC_CONTACTS_ENABLED)
-    return NextResponse.json({ error: "Contacts API not enabled" });
-
   const session = await auth();
   if (!session?.user.email)
     return NextResponse.json({ error: "Not authenticated" });

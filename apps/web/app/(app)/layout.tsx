@@ -8,6 +8,7 @@ import { PostHogIdentify } from "@/providers/PostHogProvider";
 import { CommandK } from "@/components/CommandK";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { ComposeDialog } from "./compose/ComposeDialog";
 
 export default async function AppLayout({
   children,
@@ -30,6 +31,7 @@ export default async function AppLayout({
         <TokenCheck />
         <CommandK />
         <Toaster />
+        <ComposeDialog />
         {children}
       </ThemeProvider>
     </Providers>
