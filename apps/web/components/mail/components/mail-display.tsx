@@ -408,7 +408,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator />
-          <div className="flex-1 overflow-y-auto whitespace-pre-wrap p-4 text-sm">
+          <div className="flex-1 overflow-y-auto p-4 text-sm">
             {mail.messages.length > 1 ? (
               <div className="space-y-4 p-4">
                 {mail.messages.map((message: GMailMessage, index) => (
