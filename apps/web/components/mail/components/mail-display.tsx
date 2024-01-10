@@ -48,11 +48,13 @@ import { useEffect, useState } from "react";
 import { postRequest } from "@/utils/api";
 import { SendEmailBody, SendEmailResponse } from "@/utils/gmail/mail";
 import { isError } from "@/utils/error";
+import parse from "html-react-parser";
 import { toastError, toastSuccess } from "@/components/Toast";
 import { useToast } from "@/components/ui/use-toast";
 import useSWR from "swr";
 import { fetcher } from "@/providers/SWRProvider";
 import { Dropdown } from "react-day-picker";
+import { O } from "@upstash/redis/zmscore-b6b93f14";
 
 interface MailDisplayProps {
   mail: GMailThread | null;
@@ -80,10 +82,11 @@ function extractLatestReply(emailContent: string): string {
 }
 
 function formatPlainTextEmail(text: string): string {
-  // First, safely convert line breaks to <br> tags
+  if (!text) return "";
+  // Convert line breaks to <br> tags
   let formattedText = text.replace(/\n/g, "<br>");
 
-  // Next, find and replace the "Sent via [Service] <URL>" pattern
+  // Replace "Sent via [Service] <URL>"
   formattedText = formattedText.replace(
     /Sent via ([^<]+) <(https?:\/\/[^>]+)>/g,
     (_, service, url) => {
@@ -91,10 +94,26 @@ function formatPlainTextEmail(text: string): string {
     },
   );
 
-  // Finally, convert any other standalone URLs to clickable links
+  // Replace "Powered by [Service] [URL]" with clickable link
   formattedText = formattedText.replace(
-    /(?<!href=")(https?:\/\/\S+)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">$1</a>',
+    /Powered by ([^\[]+) \[(https?:\/\/[^\]]+)]/g,
+    (_, service, url) => {
+      return `Powered by <a href="${url}" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">${service}</a>`;
+    },
+  );
+
+  // Replace "Unsubscribe [URL]" with clickable link
+  formattedText = formattedText.replace(
+    /Unsubscribe \[(https?:\/\/[^\]]+)]/g,
+    (_, url) => {
+      return `<br><a href="${url}" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">Unsubscribe</a>`;
+    },
+  );
+
+  // Convert standalone URLs to clickable links with just the domain name
+  formattedText = formattedText.replace(
+    /(?<!href=")(https?:\/\/(?:www\.)?([^\/]+))/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: rgb(37 99 235); text-decoration: underline;">$2</a>',
   );
 
   return formattedText;
@@ -198,7 +217,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
 
   const getMessageSenderFirstName = (message: GMailMessage): string => {
     const name = message.name.split(" ")[0] || "";
-    return name;
+    return name.replace(/"/g, "");
   };
 
   const createMarkup = (htmlContent: any) => {
@@ -370,7 +389,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">{mail.messages[0].name}</div>
+                <div className="font-semibold">
+                  {mail.messages[0].name.replace(/"/g, "")}
+                </div>
                 <div className="line-clamp-1 text-xs">
                   {mail.messages[0].subject}
                 </div>
@@ -387,7 +408,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator />
-          <div className="relative flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto whitespace-pre-wrap p-4 text-sm">
             {mail.messages.length > 1 ? (
               <div className="space-y-4 p-4">
                 {mail.messages.map((message: GMailMessage, index) => (
@@ -436,11 +457,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                             ),
                           }}
                         />
-                        <div
-                          className={
-                            "ml-auto justify-end p-2 text-xs text-muted-foreground"
-                          }
-                        >
+                        <div className="p-2 text-xs text-muted-foreground">
                           {message.email.includes(email || "")
                             ? "You"
                             : getMessageSenderFirstName(message)}
@@ -475,7 +492,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                     key={mail.messages[0].id}
                   >
                     <div
-                      className="rounded-xl border p-4 text-sm"
+                      className="flex flex-col justify-start rounded-xl border p-4 text-sm "
                       dangerouslySetInnerHTML={{
                         __html: formatPlainTextEmail(mail.messages[0].text),
                       }}
@@ -500,16 +517,16 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator className="mt-auto" />
-          <div className="p-4">
-            <form>
-              <div className="grid gap-4">
+          <div className="mb-auto p-4">
+            <form className="">
+              <div className="grid grid-rows-2 gap-4">
                 <Textarea
-                  className="p-4"
                   placeholder={`Reply ${mail.messages[0].name}...`}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
+                  rows={4}
                 />
-                <div className="flex items-center">
+                <div className="flex items-start">
                   <Label
                     htmlFor="mute"
                     className="flex items-center gap-2 text-xs font-normal"

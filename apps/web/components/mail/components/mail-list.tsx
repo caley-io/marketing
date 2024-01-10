@@ -212,5 +212,25 @@ function getBadgeTextFormatted(label: string) {
     return "Inbox";
   }
 
+  if (label.toLowerCase().includes("sent")) {
+    return "Sent";
+  }
+
+  if (label.toLowerCase().includes("drafts")) {
+    return "Drafts";
+  }
+
+  if (label.toLowerCase().includes("trash")) {
+    return "Trash";
+  }
+
+  if (label.toLowerCase().includes("spam")) {
+    return "Spam";
+  }
+
+  if (label.toLowerCase().includes("important")) {
+    return "Important";
+  }
+
   return label;
 }

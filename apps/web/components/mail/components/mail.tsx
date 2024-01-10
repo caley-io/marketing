@@ -99,6 +99,14 @@ export function Mail({
     keepPreviousData: true,
   });
 
+  const {
+    data: sentEmailsData,
+    error: sentEmailsError,
+    isLoading: sentEmailsLoading,
+  } = useSWR("/api/google/threads?isSent=true", {
+    keepPreviousData: true,
+  });
+
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
@@ -142,9 +150,12 @@ export function Mail({
         );
       case "Sent":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
-            <div>Sent</div>
-          </ResizablePanel>
+          <Inbox
+            data={sentEmailsData}
+            isLoading={sentEmailsLoading}
+            error={sentEmailsError}
+            defaultLayout={defaultLayout}
+          />
         );
       case "Junk":
         return (
@@ -296,7 +307,7 @@ export function Mail({
                   },
                   {
                     title: "Sent",
-                    label: "",
+                    label: sentEmailsData?.threads.length || "0",
                     icon: Send,
                     variant: "ghost",
                   },

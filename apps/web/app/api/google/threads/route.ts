@@ -24,6 +24,7 @@ const threadsQuery = z.object({
   isDone: z.coerce.boolean().nullish(),
   isTeam: z.coerce.boolean().nullish(),
   isCalendar: z.coerce.boolean().nullish(),
+  isSent: z.coerce.boolean().nullish(),
 });
 export type ThreadsQuery = z.infer<typeof threadsQuery>;
 export type ThreadsResponse = Awaited<ReturnType<typeof getThreads>>;
@@ -63,10 +64,21 @@ async function getThreads(query: ThreadsQuery) {
     }
   };
 
+  const buildLabelIds = () => {
+    if (query.isDone) {
+      if (!doneLabel?.id) throw new Error("Missing DONE label");
+      return [doneLabel.id];
+    } else if (query.isSent) {
+      return ["SENT"];
+    } else {
+      return [INBOX_LABEL_ID];
+    }
+  };
+
   const [gmailThreads, rules] = await Promise.all([
     gmail.users.threads.list({
       userId: "me",
-      labelIds: query.isDone ? [doneLabel.id] : [INBOX_LABEL_ID],
+      labelIds: buildLabelIds(),
       maxResults: query.limit || 50,
       q: query.isTeam || query.isCalendar ? buildQuery() : undefined,
     }),
@@ -117,6 +129,7 @@ export const GET = withError(async (request: Request) => {
   const isDone = searchParams.get("isDone");
   const isTeam = searchParams.get("isTeam");
   const isCalendar = searchParams.get("isCalendar");
+  const isSent = searchParams.get("isSent");
   const query = threadsQuery.parse({
     limit,
     fromEmail,
@@ -124,6 +137,7 @@ export const GET = withError(async (request: Request) => {
     isDone,
     isTeam,
     isCalendar,
+    isSent,
   });
 
   const threads = await getThreads(query);
