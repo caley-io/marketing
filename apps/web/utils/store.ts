@@ -22,12 +22,10 @@ export type Tabs =
   | "Analytics"
   | "Drafts"
   | "Junk"
-  | "Social"
-  | "Updates"
-  | "Forums"
-  | "Shopping"
-  | "Promotions"
-  | "Starred"
+  | "Done"
+  | "Team"
+  | "Calendar"
+  | "VIP"
   | "Sent"
   | "Drafts"
   | "Trash"
@@ -42,4 +40,8 @@ export const tabAtom = atom<Tabs>("Inbox");
 
 export const focusedThreadAtom = atom<GMailThread | null>(null);
 
+export const focusedIndexAtom = atom<number>(-1);
+
 export const openComposeAtom = atom<boolean>(false);
+
+export const threadsAtom = atom<any>(null);

@@ -39,17 +39,26 @@ import {
   ReplyIcon,
   ReplyAll,
   Forward,
+  CheckCircle,
+  Building,
+  Calendar,
+  Star,
 } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import {
   Tab,
+  focusedIndexAtom,
   focusedThreadAtom,
   openComposeAtom,
   tabAtom,
+  threadsAtom,
 } from "@/utils/store";
 import { markAsReadAction, markAsUnreadAction } from "@/utils/actions";
 import { postRequest } from "@/utils/api";
 import { EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import useSWR, { useSWRConfig } from "swr";
+import { fetcher } from "@/providers/SWRProvider";
+import { set } from "lodash";
 
 const links: Tab[] = [
   {
@@ -101,34 +110,28 @@ const links: Tab[] = [
     shortcut: "gk",
   },
   {
-    title: "Social",
-    icon: Users2,
+    title: "Done",
+    icon: CheckCircle,
     variant: "ghost",
     shortcut: "gl",
   },
   {
-    title: "Updates",
-    icon: AlertCircle,
+    title: "Team",
+    icon: Building,
     variant: "ghost",
     shortcut: "gu",
   },
   {
-    title: "Forums",
-    icon: MessagesSquare,
+    title: "Calendar",
+    icon: Calendar,
     variant: "ghost",
     shortcut: "gf",
   },
   {
-    title: "Shopping",
-    icon: ShoppingCart,
+    title: "VIP",
+    icon: Star,
     variant: "ghost",
     shortcut: "gg",
-  },
-  {
-    title: "Promotions",
-    icon: Archive,
-    variant: "ghost",
-    shortcut: "gp",
   },
 ];
 
@@ -142,6 +145,11 @@ const markActions = [
     title: "Mark as unread",
     icon: EyeClosedIcon,
     shortcut: "mu",
+  },
+  {
+    title: "Mark as Done",
+    icon: CheckCircle,
+    shortcut: "dd",
   },
 ];
 
@@ -272,8 +280,12 @@ export function CommandK() {
   const [open, setOpen] = React.useState(false);
   const [lastKeyPressed, setLastKeyPressed] = React.useState("");
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
-  const focusedThread = useAtomValue(focusedThreadAtom);
+  const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
+  const focusedIndex = useAtomValue(focusedIndexAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [threadsData, setThreadsData] = useAtom(threadsAtom);
+
+  const { mutate } = useSWR("api/google/threads", fetcher);
 
   React.useEffect(() => {
     const handleMarkAsRead = async (threadId: string) => {
@@ -289,6 +301,18 @@ export function CommandK() {
         message.read = false;
       });
     };
+
+    const handleMarkAsDone = async (threadId: string) => {
+      if (!focusedThread || threadsData === null) return;
+      const filteredThreads = threadsData.threads.filter(
+        (thread: any) => thread.id !== threadId,
+      );
+      setThreadsData({ threads: [...filteredThreads] });
+      setFocusedThread(threadsData.threads[focusedIndex + 1]);
+      mutate({ threads: [...filteredThreads] });
+
+      await postRequest("/api/google/threads/mark-as-done", { id: threadId });
+    };
     const down = async (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -297,6 +321,20 @@ export function CommandK() {
       }
 
       setLastKeyPressed(e.key);
+
+      if (lastKeyPressed === "d") {
+        const shortcut = `d${e.key}`;
+        const link = markActions.find((link) => link.shortcut === shortcut);
+        if (link) {
+          console.log(link.title);
+          if (link.title === "Mark as Done") {
+            const threadId = focusedThread?.id;
+            await handleMarkAsDone(threadId || "");
+            setOpen(false);
+          }
+        }
+        setLastKeyPressed(""); // Reset the last key pressed
+      }
 
       if (lastKeyPressed === "g") {
         const shortcut = `g${e.key}`;

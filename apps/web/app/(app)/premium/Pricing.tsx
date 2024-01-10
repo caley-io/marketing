@@ -141,6 +141,7 @@ export function Pricing() {
             <div className="flex flex-col justify-between" key={tier.id}>
               <div className="relative h-full max-w-sm">
                 <div className="absolute inset-0 h-full w-full scale-[0.80] transform rounded-full bg-red-500 bg-gradient-to-r from-blue-500 to-teal-500 blur-3xl" />
+
                 <div className="relative flex h-full flex-col items-start justify-between overflow-hidden rounded-2xl border border-white/10 bg-black px-6 py-8 shadow-xl">
                   <div className="w-full">
                     <div className="flex items-center justify-between gap-x-4">
@@ -206,7 +207,7 @@ export function Pricing() {
                   </a>
 
                   {/* Meaty part - Meteor effect */}
-                  <Meteors number={20} />
+                  {tier.mostPopular && <Meteors number={20} />}
                 </div>
               </div>
             </div>
@@ -284,7 +285,7 @@ function LifetimePricing() {
                     reimbursement
                   </p>
                 </div>
-                <Meteors number={20} />
+                {/* <Meteors number={20} /> */}
               </div>
             </div>
 

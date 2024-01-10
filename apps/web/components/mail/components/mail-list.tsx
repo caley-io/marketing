@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtom } from "jotai";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
-import { configAtom, focusedThreadAtom } from "@/utils/store";
+import { configAtom, focusedIndexAtom, focusedThreadAtom } from "@/utils/store";
 import { set } from "lodash";
 import { postRequest } from "@/utils/api";
 import useSWR, { useSWRConfig } from "swr";
@@ -20,7 +20,7 @@ interface MailListProps {
 
 export function MailList({ items }: MailListProps) {
   const [mail, setMail] = useAtom(configAtom);
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [focusedIndex, setFocusedIndex] = useAtom(focusedIndexAtom);
   const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { mutate } = useSWR("api/google/threads", fetcher);
@@ -147,7 +147,11 @@ export function MailList({ items }: MailListProps) {
             {item.messages[0].labels.length ? (
               <div className="flex items-center gap-2">
                 {item.messages[0].labels
-                  .filter((label) => !label.toLowerCase().includes("unread"))
+                  .filter(
+                    (label) =>
+                      !label.toLowerCase().includes("unread") &&
+                      !label.toLowerCase().includes("label_"),
+                  )
                   .map((label) => (
                     <Badge
                       key={label}

@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "pbs.twimg.com",
       },
+      {
+        protocol: "https",
+        hostname: "source.unsplash.com",
+      },
     ],
   },
   async redirects() {
@@ -59,7 +63,7 @@ const nextConfig = {
     return [
       {
         source: "/ingest/:path*",
-        destination: "https://app.posthog.com/:path*",
+        destination: "https://eu.posthog.com/:path*",
       },
     ];
   },

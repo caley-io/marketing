@@ -4,6 +4,9 @@ import {
   AlertCircle,
   Archive,
   ArchiveX,
+  Building,
+  Calendar,
+  CheckCircle,
   File,
   Gauge,
   Inbox as InboxIcon,
@@ -13,6 +16,7 @@ import {
   Pencil,
   Send,
   ShoppingCart,
+  Star,
   Trash2,
   Users2,
 } from "lucide-react";
@@ -32,9 +36,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import useSWR from "swr";
-import { configAtom, openComposeAtom, tabAtom } from "@/utils/store";
+import {
+  configAtom,
+  openComposeAtom,
+  tabAtom,
+  threadsAtom,
+} from "@/utils/store";
 import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
@@ -66,11 +75,42 @@ export function Mail({
     keepPreviousData: true,
   });
 
+  const {
+    data: doneEmailsData,
+    error: doneEmailsError,
+    isLoading: doneEmailsLoading,
+  } = useSWR("/api/google/threads?isDone=true", {
+    keepPreviousData: true,
+  });
+
+  const {
+    data: teamEmailsData,
+    error: teamEmailsError,
+    isLoading: teamEmailsLoading,
+  } = useSWR("/api/google/threads?isTeam=true", {
+    keepPreviousData: true,
+  });
+
+  const {
+    data: calendarEmailsData,
+    error: calendarEmailsError,
+    isLoading: calendarEmailsLoading,
+  } = useSWR("/api/google/threads?isCalendar=true", {
+    keepPreviousData: true,
+  });
+
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
 
   const mail = useAtomValue(configAtom);
+
+  React.useEffect(() => {
+    if (threadsData) {
+      setStateThreadsData(threadsData);
+    }
+  }, [threadsData, setStateThreadsData]);
 
   const handleOnCollapse = () => {
     document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
@@ -84,7 +124,7 @@ export function Mail({
       case "Inbox":
         return (
           <Inbox
-            data={threadsData}
+            data={stateThreadsData}
             isLoading={threadsLoading}
             error={threadsError}
             defaultLayout={defaultLayout}
@@ -124,34 +164,37 @@ export function Mail({
             <div>Archive</div>
           </ResizablePanel>
         );
-      case "Social":
+      case "Done":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
-            <div>Social</div>
-          </ResizablePanel>
+          <Inbox
+            data={doneEmailsData}
+            isLoading={doneEmailsLoading}
+            error={doneEmailsError}
+            defaultLayout={defaultLayout}
+          />
         );
-      case "Updates":
+      case "Team":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
-            <div>Updates</div>
-          </ResizablePanel>
+          <Inbox
+            data={teamEmailsData}
+            isLoading={teamEmailsLoading}
+            error={teamEmailsError}
+            defaultLayout={defaultLayout}
+          />
         );
-      case "Forums":
+      case "Calendar":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
-            <div>Forums</div>
-          </ResizablePanel>
+          <Inbox
+            data={calendarEmailsData}
+            isLoading={calendarEmailsLoading}
+            error={calendarEmailsError}
+            defaultLayout={defaultLayout}
+          />
         );
-      case "Shopping":
+      case "VIP":
         return (
           <ResizablePanel defaultSize={1095} className="h-screen">
             <div>Shopping</div>
-          </ResizablePanel>
-        );
-      case "Promotions":
-        return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
-            <div>Promotions</div>
           </ResizablePanel>
         );
     }
@@ -197,7 +240,7 @@ export function Mail({
                 links={[
                   {
                     title: "Inbox",
-                    label: threadsData?.threads.length || "",
+                    label: threadsData?.threads.length || "0",
                     icon: InboxIcon,
                     variant: "default",
                   },
@@ -213,6 +256,38 @@ export function Mail({
                     icon: Gauge,
                     variant: "ghost",
                   },
+                  {
+                    title: "Done",
+                    label: doneEmailsData?.threads.length || "0",
+                    icon: CheckCircle,
+                    variant: "ghost",
+                  },
+                  {
+                    title: "Team",
+                    label: teamEmailsData?.threads.length || "0",
+                    icon: Building,
+                    variant: "ghost",
+                  },
+                  {
+                    title: "Calendar",
+                    label: calendarEmailsData?.threads.length || "0",
+                    icon: Calendar,
+                    variant: "ghost",
+                  },
+                  {
+                    title: "VIP",
+                    label: "8",
+                    icon: Star,
+                    variant: "ghost",
+                  },
+                ]}
+              />
+              <Separator />
+              <Nav
+                isCollapsed={isCollapsed}
+                selectedTab={selectedTab}
+                setSelectedTab={setSelectedTab}
+                links={[
                   {
                     title: "Drafts",
                     label: "9",
@@ -245,45 +320,7 @@ export function Mail({
                   },
                 ]}
               />
-              <Separator />
-              <Nav
-                isCollapsed={isCollapsed}
-                selectedTab={selectedTab}
-                setSelectedTab={setSelectedTab}
-                links={[
-                  {
-                    title: "Social",
-                    label: "972",
-                    icon: Users2,
-                    variant: "ghost",
-                  },
-                  {
-                    title: "Updates",
-                    label: "342",
-                    icon: AlertCircle,
-                    variant: "ghost",
-                  },
-                  {
-                    title: "Forums",
-                    label: "128",
-                    icon: MessagesSquare,
-                    variant: "ghost",
-                  },
-                  {
-                    title: "Shopping",
-                    label: "8",
-                    icon: ShoppingCart,
-                    variant: "ghost",
-                  },
-                  {
-                    title: "Promotions",
-                    label: "21",
-                    icon: Archive,
-                    variant: "ghost",
-                  },
-                ]}
-              />
-              <Separator />
+
               <div
                 data-collapsed={isCollapsed}
                 className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
