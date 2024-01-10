@@ -38,7 +38,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
         >
           <div className="flex flex-col items-center justify-center font-cal">
             <h1 className="mt-4 text-2xl font-bold">
-              You've hit inbox zero for{" "}
+              You&apos;ve hit inbox zero for{" "}
               <b className="ml-2 mr-2 text-4xl">3 weeks</b> in a row
             </h1>
             <p className="mt-2 text-center text-muted-foreground">
