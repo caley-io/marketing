@@ -30,13 +30,14 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
+    images: ["/images/opengraph-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
     creator: "@geekpreneur_",
-    images: "/images/opengraph-image.png",
+    images: ["/images/opengraph-image.png"],
   },
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
 };
