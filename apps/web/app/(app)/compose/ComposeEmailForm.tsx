@@ -15,6 +15,7 @@ import { openComposeAtom } from "@/utils/store";
 import { useAtom } from "jotai";
 import { toast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { Sparkle } from "lucide-react";
 
 export const ComposeEmailForm = () => {
   const {
@@ -117,6 +118,7 @@ export const ComposeEmailForm = () => {
         registerProps={register("messageText", { required: true })}
         error={errors.messageText}
       />
+
       <Button type="submit" loading={isSubmitting}>
         Send
       </Button>

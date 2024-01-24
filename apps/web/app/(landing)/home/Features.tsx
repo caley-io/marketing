@@ -213,7 +213,7 @@ export function FeaturesCalendar() {
       title="Smart Calendar Integration"
       subtitle="Orchestrate Your Schedule with Precision"
       description="Transform your email conversations into a perfectly synchronized calendar. AI-driven scheduling at its best."
-      image="/images/keyboard.png"
+      image="/images/calendar.png"
       features={featuresCalendar}
     />
   );
@@ -327,7 +327,7 @@ export function FeaturesStats() {
       title="Customized Email Responses"
       subtitle="Craft Perfect Replies with AI"
       description="Experience the future of emailing with AI-crafted responses that speak in your voice. Tailored, intelligent, and uniquely yours."
-      image="/images/stats.png"
+      image="/images/ai-writting.png"
       features={featuresStats}
     />
   );
@@ -355,7 +355,7 @@ export function FeaturesUnsubscribe() {
       title="AI-Powered Efficiency"
       subtitle="Unleash the Potential of Your Inbox"
       description="Imagine an inbox that not only understands you but also acts on your behalf. With Caley.io, dive into an email experience where AI does the heavy lifting. It's not just about managing emails; it's about reclaiming your time and focusing on what truly matters."
-      image="/images/newsletters.png"
+      image="/images/email.png"
       features={featuresUnsubscribe}
     />
   );
