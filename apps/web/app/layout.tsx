@@ -36,6 +36,7 @@ export const metadata: Metadata = {
     title,
     description,
     creator: "@geekpreneur_",
+    images: "/images/opengraph-image.png",
   },
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
 };
