@@ -45,10 +45,10 @@ export function Hero(props: {
                 </>
               )}
             </HeroSubtitle>
-            {/* <CTAButtons /> */}
-            <div className="flex w-full flex-col items-center justify-center">
+            <CTAButtons />
+            {/* <div className="flex w-full flex-col items-center justify-center">
               <Waitlist />
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-16 flow-root sm:mt-24">

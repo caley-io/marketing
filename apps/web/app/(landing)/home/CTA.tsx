@@ -30,7 +30,7 @@ export function CTA() {
           <br />
           Caley.io - Your gateway to smarteremailing.
         </p>
-        <Waitlist />
+        <CTAButtons />
       </div>
       {/* <div
         className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-1/2 transform-gpu overflow-hidden blur-3xl sm:block"

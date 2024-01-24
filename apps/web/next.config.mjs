@@ -24,22 +24,22 @@ const nextConfig = {
     return [
       {
         source: "/feature-requests",
-        destination: "https://inboxzero.canny.io/feature-requests",
+        destination: "https://github.com/Magnet-wtf/caley.io",
         permanent: true,
       },
       {
         source: "/roadmap",
-        destination: "https://inboxzero.canny.io/",
+        destination: "https://github.com/Magnet-wtf/caley.io",
         permanent: true,
       },
       {
         source: "/twitter",
-        destination: "https://twitter.com/inboxzero_ai",
+        destination: "https://twitter.com/geekpreneur_",
         permanent: true,
       },
       {
         source: "/github",
-        destination: "https://github.com/elie222/inbox-zero",
+        destination: "https://github.com/Magnet-wtf/caley.io",
         permanent: true,
       },
       {

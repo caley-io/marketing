@@ -1,16 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { RadioGroup } from "@headlessui/react";
 import { CheckIcon, CreditCardIcon } from "lucide-react";
-import clsx from "clsx";
 import { env } from "@/env.mjs";
 import { LoadingContent } from "@/components/LoadingContent";
 import { usePremium } from "@/components/PremiumAlert";
 import { Tag } from "@/components/Tag";
 import { Button } from "@/components/Button";
-import { MeteorsDemo } from "@/components/MeteorCard";
-import { Meteors } from "@/components/ui/meteors";
 
 const frequencies = [
   { value: "monthly" as const, label: "Monthly", priceSuffix: "/month" },
@@ -63,14 +59,18 @@ const tiers = [
   },
 ];
 
-const LIFETIME_PRICE = 199;
+const LIFETIME_PRICE = 79;
 const LIFETIME_LINK = env.NEXT_PUBLIC_LIFETIME_PAYMENT_LINK;
 
 const lifetimeFeatures = [
-  "Everything in Caley.io Pro",
+  "Lifetime access to Caley.io",
+  "Unlimited unsubscribes",
+  "AI writing",
+  "AI automations",
+  "Unlimited Analytics",
   "Priority support",
-  "$100 of AI credits",
-  "Early access to new features",
+  "Self-hosted",
+  "Dedicated support",
 ];
 
 export function Pricing() {
@@ -89,11 +89,12 @@ export function Pricing() {
             Pricing
           </h2>
           <p className="mt-2 font-cal text-4xl text-foreground sm:text-5xl">
-            Try for free, affordable paid plans
+            Pay once, use forever.
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-foreground/60">
-          Clean your email and reach inbox zero fast with AI assistance.
+          AI Superpowers, Conversations, Newsletter management, and email
+          analytics. Caley.io is the open-source email client that you deserve.
         </p>
 
         {isPremium && (
@@ -110,7 +111,7 @@ export function Pricing() {
           </div>
         )}
 
-        <div className="mt-16 flex justify-center">
+        {/* <div className="mt-16 flex justify-center">
           <RadioGroup
             value={frequency}
             onChange={setFrequency}
@@ -134,9 +135,9 @@ export function Pricing() {
               </RadioGroup.Option>
             ))}
           </RadioGroup>
-        </div>
+        </div> */}
 
-        <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+        {/* <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {tiers.map((tier, tierIdx) => (
             <div className="flex flex-col justify-between" key={tier.id}>
               <div className="relative h-full max-w-sm">
@@ -206,13 +207,13 @@ export function Pricing() {
                     Join the waitlist
                   </a>
 
-                  {/* Meaty part - Meteor effect */}
+                  
                   {tier.mostPopular && <Meteors number={20} />}
                 </div>
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <LifetimePricing />
       </div>
@@ -234,8 +235,7 @@ function LifetimePricing() {
                 </div>
               </h3>
               <p className="mt-4 text-base leading-7 text-slate-500">
-                Get lifetime access to Caley.io Pro for a one-time payment. This
-                includes $100 in AI credits.
+                Get lifetime access to Caley.io for a one-time payment.
               </p>
               <div className="mt-10 flex items-center gap-x-4">
                 <h4 className="flex-none bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text font-cal text-sm leading-6 text-transparent">
@@ -258,7 +258,7 @@ function LifetimePricing() {
                 ))}
               </ul>
             </div>
-            <div className="relative -mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
+            <div className="relative -mt-2 flex items-center justify-center p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
               <div className="absolute inset-0 h-full w-full scale-[0.80] transform rounded-full bg-red-500 bg-gradient-to-r from-blue-500 to-teal-500 blur-3xl" />
 
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black px-6 py-8 text-center shadow-xl ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
@@ -268,22 +268,19 @@ function LifetimePricing() {
                   </p>
                   <p className="mt-6 flex items-baseline justify-center gap-x-2">
                     <span className="text-5xl font-bold tracking-tight text-white">
-                      ${LIFETIME_PRICE}
+                      {LIFETIME_PRICE}€
                     </span>
-                    <span className="text-sm font-semibold leading-6 tracking-wide text-slate-500">
-                      USD
+                    <span className="text-sm font-semibold leading-6 tracking-wide text-gray-600 line-through">
+                      199€
                     </span>
                   </p>
                   <a
-                    href="/#hero"
+                    href="https://buy.stripe.com/9AQ2aafKJgVL3pCcMT"
+                    target="_blank"
                     className="mt-10 block w-full rounded-md bg-gradient-to-r from-blue-600 to-cyan-400 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   >
-                    Join the waitlist
+                    Join the Pre-sale
                   </a>
-                  <p className="mt-6 text-xs leading-5 text-slate-500">
-                    Invoices and receipts available for easy company
-                    reimbursement
-                  </p>
                 </div>
                 {/* <Meteors number={20} /> */}
               </div>

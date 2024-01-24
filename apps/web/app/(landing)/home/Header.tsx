@@ -53,12 +53,12 @@ export function Header() {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link
+          {/* <Link
             href="/welcome"
             className="text-sm font-semibold leading-6 text-foreground"
           >
             Log in <span aria-hidden="true">&rarr;</span>
-          </Link>
+          </Link> */}
         </div>
       </nav>
       <Dialog
@@ -98,7 +98,7 @@ export function Header() {
                   </Link>
                 ))}
               </div>
-              <div className="py-6">
+              {/* <div className="py-6">
                 <Link
                   href="/welcome"
                   className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
@@ -108,7 +108,7 @@ export function Header() {
                 >
                   Log in
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         </Dialog.Panel>

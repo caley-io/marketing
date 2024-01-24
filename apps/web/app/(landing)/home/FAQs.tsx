@@ -1,14 +1,15 @@
 const faqs = [
   {
-    question: "Do you store my emails?",
+    question: "How does Caley.io handle my email data?",
     answer:
-      "We store a hashed version of your emails for our analytics feature. As our code is open-source you can check our code to see this for yourself. For full data privacy you can self-host your own instance of Caley.io.",
+      "Your privacy is paramount. We store only a secure hash of your emails to power our analytics features. Our commitment to transparency is clear—you can review our open-source code anytime. For those who prioritize complete data control, we offer the flexibility to self-host Caley.io.",
   },
   {
-    question: "Is the code open-source?",
+    question: "Is Caley.io’s codebase accessible to the public?",
     answer: (
       <>
-        Yes! You can see the source code in our{" "}
+        Absolutely! Dive into our development process and contribute to our
+        community on our{" "}
         <a
           href="/github"
           target="_blank"
@@ -21,10 +22,10 @@ const faqs = [
     ),
   },
   {
-    question: "Do you take feature requests?",
+    question: "Can I suggest new features for Caley.io?",
     answer: (
       <>
-        Yes! Post an issue on{" "}
+        We thrive on user feedback! Share your suggestions via a{" "}
         <a
           href="/github"
           target="_blank"
@@ -32,36 +33,38 @@ const faqs = [
         >
           GitHub
         </a>{" "}
-        or{" "}
+        issue or drop us an{" "}
         <a
-          href="mailto:elie@getinboxzero.com"
+          href="mailto:jeremy@caley.io"
           target="_blank"
           className="font-semibold hover:underline"
         >
           email
         </a>{" "}
-        us. We{"'"}re happy to hear how we can improve your email experience.
+        . Enhancing your email experience is our core mission.
       </>
     ),
   },
   {
-    question: "Which email providers does Caley.io support?",
+    question: "Which email services are compatible with Caley.io?",
     answer:
-      "We only support Gmail and Gsuite email accounts today. We may add support for other email providers such as Outlook in the future.",
+      "Currently, Caley.io seamlessly integrates with Gmail and G Suite accounts. We're exploring the horizon for adding compatibility with other providers, like Outlook, to broaden your choices.",
   },
   {
-    question: "Do you offer refunds?",
+    question: "What’s your refund policy?",
     answer: (
       <>
-        If you don{"'"}t think we provided you with value send us an{" "}
+        We aim for your utmost satisfaction. If you feel Caley.io hasn{"'"}t
+        enriched your email interaction, reach out via{" "}
         <a
-          href="mailto:elie@getinboxzero.com"
+          href="mailto:jeremy@caley.io"
           target="_blank"
           className="font-semibold hover:underline"
         >
           email
         </a>{" "}
-        within 14 days of upgrading and we{"'"}ll refund you.
+        within the first 14 days of your upgrade. We{"'"}ll arrange a
+        hassle-free refund.
       </>
     ),
   },
