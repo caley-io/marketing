@@ -7,6 +7,7 @@ import localFont from "next/font/local";
 import { env } from "@/env.mjs";
 import { LemonScript } from "@/utils/scripts/lemon";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
               <PostHogPageview />
             </Suspense>
             {children}
+            <Analytics />
           </PostHogProvider>
         </ThemeProvider>
       </body>

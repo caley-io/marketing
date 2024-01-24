@@ -56,6 +56,7 @@
     "@types/react": "18.2.46",
     "@types/react-dom": "18.2.18",
     "@upstash/redis": "^1.25.1",
+    "@vercel/analytics": "^1.1.2",
     "ai": "^2.2.27",
     "autoprefixer": "10.4.16",
     "bull": "^4.11.5",
