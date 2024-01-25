@@ -59,7 +59,7 @@ const tiers = [
   },
 ];
 
-const LIFETIME_PRICE = 79;
+const LIFETIME_PRICE = 49.99;
 const LIFETIME_LINK = env.NEXT_PUBLIC_LIFETIME_PAYMENT_LINK;
 
 const lifetimeFeatures = [
@@ -275,7 +275,7 @@ function LifetimePricing() {
                     </span>
                   </p>
                   <a
-                    href="https://buy.stripe.com/9AQ2aafKJgVL3pCcMT"
+                    href="https://magnet.lemonsqueezy.com/checkout/buy/80d89d16-bf1f-4d76-85d4-f7bf9862e20b"
                     target="_blank"
                     className="mt-10 block w-full rounded-md bg-gradient-to-r from-blue-600 to-cyan-400 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   >

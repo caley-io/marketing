@@ -13,7 +13,7 @@ export function CTAButtons() {
         color="primary"
         size="2xl"
         link={{
-          href: "https://buy.stripe.com/9AQ2aafKJgVL3pCcMT",
+          href: "https://magnet.lemonsqueezy.com/checkout/buy/80d89d16-bf1f-4d76-85d4-f7bf9862e20b",
           target: "_blank",
         }}
         onClick={() => {
