@@ -32,7 +32,7 @@ export function Waitlist() {
   };
 
   return (
-    <div className="mt-10 grid w-full items-center justify-center gap-x-4 gap-y-2 sm:flex">
+    <div className="mt-8 grid w-full items-center justify-center gap-x-4 gap-y-2 sm:flex">
       {isSubmitted ? (
         <div className="flex text-foreground/60">
           <CheckCircle2 className="mr-2 text-green-400" />

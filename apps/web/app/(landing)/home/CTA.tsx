@@ -1,5 +1,7 @@
 import { CTAButtons } from "@/app/(landing)/home/CTAButtons";
 import { Waitlist } from "./Waitlist";
+import { S } from "@upstash/redis/zmscore-b6b93f14";
+import { Separator } from "@/components/ui/separator";
 
 export function CTA() {
   return (
@@ -16,7 +18,7 @@ export function CTA() {
           }}
         />
       </div> */}
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto flex max-w-3xl flex-col items-center justify-center text-center">
         <h2 className="font-cal text-3xl text-foreground sm:text-4xl">
           Elevate your inbox experience.
           <br />
@@ -31,6 +33,17 @@ export function CTA() {
           Caley.io - Your gateway to smarteremailing.
         </p>
         <CTAButtons />
+
+        <div
+          id="waitlist"
+          className="mt-8 flex max-w-sm items-center justify-center space-x-4"
+        >
+          <Separator className="mr-4" />
+          OR
+          <Separator />
+        </div>
+
+        <Waitlist />
       </div>
       {/* <div
         className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-1/2 transform-gpu overflow-hidden blur-3xl sm:block"

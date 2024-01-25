@@ -1,7 +1,5 @@
 import Image from "next/image";
 import { CTAButtons } from "@/app/(landing)/home/CTAButtons";
-import { VideoDemo } from "@/app/(landing)/home/VideoDemo";
-import { Waitlist } from "./Waitlist";
 
 export function HeroText(props: { children: React.ReactNode }) {
   return (
@@ -28,7 +26,7 @@ export function Hero(props: {
     >
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
       <div className="pt-24 sm:pb-12 sm:pt-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl items-center px-6 lg:px-8">
           {/* <HeroTag /> */}
 
           <div className="mx-auto flex max-w-3xl flex-col items-center justify-center text-center">
@@ -46,9 +44,6 @@ export function Hero(props: {
               )}
             </HeroSubtitle>
             <CTAButtons />
-            {/* <div className="flex w-full flex-col items-center justify-center">
-              <Waitlist />
-            </div> */}
           </div>
 
           <div className="mt-16 flow-root sm:mt-24">
