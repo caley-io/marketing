@@ -226,7 +226,7 @@ function LifetimePricing() {
     <div className="mt-12 flex flex-col justify-between pr-6">
       <div className="relative h-full w-full">
         <div className="relative overflow-hidden rounded-2xl border border-white/10 px-6 py-8 shadow-xl">
-          <div className="flex w-full">
+          <div className="flex w-full flex-col lg:flex-row">
             <div className="p-8 sm:p-10 lg:flex-auto">
               <h3 className="flex items-center font-cal text-2xl text-white">
                 Lifetime access
