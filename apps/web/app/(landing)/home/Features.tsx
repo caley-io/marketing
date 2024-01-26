@@ -327,7 +327,7 @@ export function FeaturesStats() {
       title="Customized Email Responses"
       subtitle="Craft Perfect Replies with AI"
       description="Experience the future of emailing with AI-crafted responses that speak in your voice. Tailored, intelligent, and uniquely yours."
-      image="/images/ai-writting.png"
+      image="/images/compose.png"
       features={featuresStats}
     />
   );
