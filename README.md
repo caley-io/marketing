@@ -10,6 +10,8 @@
     <a href="https://github.com/Magnet-wtf/caley.io/issues">Issues</a>
     ·
     <a href="https://github.com/orgs/Magnet-wtf/projects/1/views/1?layout=board">Kanban</a>
+    ·
+    <a href="https://discord.gg/3Makqk7Q">Discord</a>
   </p>
 </p>
 
