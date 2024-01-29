@@ -14,6 +14,7 @@ import {
   MessagesSquare,
   Newspaper,
   Pencil,
+  Plus,
   Send,
   ShoppingCart,
   Star,
@@ -48,7 +49,8 @@ import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLoader } from "@/components/ui/button";
+import { WorkspaceSidebar } from "./workspace-sidebar";
 
 interface MailProps {
   accounts: {
@@ -63,7 +65,7 @@ interface MailProps {
 
 export function Mail({
   accounts,
-  defaultLayout = [265, 440, 655],
+  defaultLayout = [225, 440, 655],
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
@@ -221,6 +223,7 @@ export function Mail({
           )}`;
         }}
       >
+        <WorkspaceSidebar />
         <ResizablePanel
           defaultSize={defaultLayout[0]}
           collapsedSize={navCollapsedSize}
@@ -374,9 +377,6 @@ export function Mail({
                   )}
                 </div>
               </div>
-            </div>
-            <div className="p-4">
-              <ProfileDropdown />
             </div>
           </div>
         </ResizablePanel>
