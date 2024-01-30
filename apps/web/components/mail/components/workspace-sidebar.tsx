@@ -6,6 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { openCreateWorkspaceOpenAtom } from "@/utils/store";
+import { useSetAtom } from "jotai";
 import { Plus } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -21,6 +23,7 @@ const userNavigation = [
 
 export function WorkspaceSidebar() {
   const { data: session, status } = useSession();
+  const setCreateWorkspaceOpen = useSetAtom(openCreateWorkspaceOpenAtom);
   return (
     <div className="left-0 top-0 h-screen w-16 flex-col items-center justify-between space-y-2 border-r">
       <div className="flex h-full flex-col justify-between">
@@ -36,7 +39,13 @@ export function WorkspaceSidebar() {
           <Button className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground/80 font-cal text-xl font-semibold text-white">
             JS
           </Button>
-          <Button className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground font-cal text-xl font-semibold">
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              setCreateWorkspaceOpen(true);
+            }}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground font-cal text-xl font-semibold"
+          >
             <Plus className="h-8 w-8 text-background" />
           </Button>
         </div>

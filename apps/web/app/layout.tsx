@@ -8,6 +8,7 @@ import { env } from "@/env.mjs";
 import { LemonScript } from "@/utils/scripts/lemon";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
+import { EdgeStoreProvider } from "@/utils/edgestore";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -63,13 +64,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <PostHogProvider>
-            <Suspense>
-              <PostHogPageview />
-            </Suspense>
-            {children}
-            <Analytics />
-          </PostHogProvider>
+          <EdgeStoreProvider>
+            <PostHogProvider>
+              <Suspense>
+                <PostHogPageview />
+              </Suspense>
+              {children}
+              <Analytics />
+            </PostHogProvider>
+          </EdgeStoreProvider>
         </ThemeProvider>
       </body>
       <LemonScript />

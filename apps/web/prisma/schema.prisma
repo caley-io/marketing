@@ -13,7 +13,8 @@ model Organization {
   name  String
   image String?
 
-  membership Membership[]
+  membership    Membership[]
+  emailAccounts EmailAccount[]
 }
 
 model Membership {
@@ -43,6 +44,53 @@ enum MembershipRole {
 enum GlobalRole {
   SUPERADMIN
   CUSTOMER
+}
+
+model EmailAccount {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String
+  email          String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Gmail
+  gmailAccessToken              String?
+  gmailRefreshToken             String?
+  gmailExpiresAt                DateTime?
+  gmailSyncedAt                 DateTime?
+  gmailSyncedHistoryId          String?
+  gmailSyncedHistoryIdUpdatedAt DateTime?
+
+  // Outlook
+  outlookAccessToken              String?
+  outlookRefreshToken             String?
+  outlookExpiresAt                DateTime?
+  outlookSyncedAt                 DateTime?
+  outlookSyncedHistoryId          String?
+  outlookSyncedHistoryIdUpdatedAt DateTime?
+
+  // Yahoo
+  yahooAccessToken              String?
+  yahooRefreshToken             String?
+  yahooExpiresAt                DateTime?
+  yahooSyncedAt                 DateTime?
+  yahooSyncedHistoryId          String?
+  yahooSyncedHistoryIdUpdatedAt DateTime?
+
+  // IMAP
+  imapHost     String?
+  imapPort     Int?
+  imapUsername String?
+  imapPassword String?
+  imapSyncedAt DateTime?
+
+  // SMTP
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUsername String?
+  smtpPassword String?
 }
 
 // Account, User, Session, and VerificationToken based on: https://authjs.dev/reference/adapter/prisma
