@@ -63,6 +63,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
 import { useEdgeStore } from "@/utils/edgestore";
+import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 
 interface MailProps {
   accounts: {
@@ -317,16 +318,13 @@ export function Mail({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <ResizablePanel
-          defaultSize={defaultLayout[0]}
-          collapsedSize={navCollapsedSize}
-          collapsible={true}
-          minSize={15}
-          maxSize={20}
-          onCollapse={handleOnCollapse}
+        <div
           className={cn(
             isCollapsed &&
               "min-w-[50px] transition-all duration-300 ease-in-out",
+            !isCollapsed &&
+              "min-w-[300px] transition-all duration-300 ease-in-out",
+            "relative border-r",
           )}
         >
           <div
@@ -471,9 +469,23 @@ export function Mail({
                 </div>
               </div>
             </div>
+            <div className="absolute bottom-0 right-0 translate-x-8 p-4">
+              <div
+                className="cursor-pointer rounded-xl border bg-background p-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOnCollapse();
+                }}
+              >
+                {isCollapsed ? (
+                  <ArrowRightIcon className="h-4 w-4" />
+                ) : (
+                  <ArrowLeftIcon className="h-4 w-4" />
+                )}
+              </div>
+            </div>
           </div>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
+        </div>
         {returnTab()}
       </ResizablePanelGroup>
     </TooltipProvider>
