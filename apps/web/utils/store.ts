@@ -45,3 +45,5 @@ export const focusedIndexAtom = atom<number>(-1);
 export const openComposeAtom = atom<boolean>(false);
 
 export const threadsAtom = atom<any>(null);
+
+export const openCreateWorkspaceOpenAtom = atom<boolean>(false);

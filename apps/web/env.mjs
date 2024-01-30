@@ -35,6 +35,8 @@ export const env = createEnv({
       .string()
       .optional()
       .transform((value) => value?.split(",")),
+    EDGE_STORE_ACCESS_KEY: z.string().optional(),
+    EDGE_STORE_SECRET_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_PRO_PAYMENT_LINK: z.string().min(1),

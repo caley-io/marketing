@@ -8,6 +8,91 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Organization {
+  id    String  @id @default(cuid())
+  name  String
+  image String?
+
+  membership    Membership[]
+  emailAccounts EmailAccount[]
+}
+
+model Membership {
+  id   String         @id @default(cuid())
+  role MembershipRole
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  // When the user joins, we will clear out the name and email and set the user.
+  invitedName  String?
+  invitedEmail String?
+
+  @@unique([organizationId, invitedEmail])
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  USER
+}
+
+// The owners of the SaaS (you) can have a SUPERADMIN role to access all data
+enum GlobalRole {
+  SUPERADMIN
+  CUSTOMER
+}
+
+model EmailAccount {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String
+  email          String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Gmail
+  gmailAccessToken              String?
+  gmailRefreshToken             String?
+  gmailExpiresAt                DateTime?
+  gmailSyncedAt                 DateTime?
+  gmailSyncedHistoryId          String?
+  gmailSyncedHistoryIdUpdatedAt DateTime?
+
+  // Outlook
+  outlookAccessToken              String?
+  outlookRefreshToken             String?
+  outlookExpiresAt                DateTime?
+  outlookSyncedAt                 DateTime?
+  outlookSyncedHistoryId          String?
+  outlookSyncedHistoryIdUpdatedAt DateTime?
+
+  // Yahoo
+  yahooAccessToken              String?
+  yahooRefreshToken             String?
+  yahooExpiresAt                DateTime?
+  yahooSyncedAt                 DateTime?
+  yahooSyncedHistoryId          String?
+  yahooSyncedHistoryIdUpdatedAt DateTime?
+
+  // IMAP
+  imapHost     String?
+  imapPort     Int?
+  imapUsername String?
+  imapPassword String?
+  imapSyncedAt DateTime?
+
+  // SMTP
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUsername String?
+  smtpPassword String?
+}
+
 // Account, User, Session, and VerificationToken based on: https://authjs.dev/reference/adapter/prisma
 model Account {
   id                String   @id @default(cuid())
@@ -49,6 +134,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  role        GlobalRole   @default(CUSTOMER)
+  memberships Membership[]
 
   // additional fields
   about                     String?

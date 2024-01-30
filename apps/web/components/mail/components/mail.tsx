@@ -14,6 +14,7 @@ import {
   MessagesSquare,
   Newspaper,
   Pencil,
+  Plus,
   Send,
   ShoppingCart,
   Star,
@@ -41,6 +42,7 @@ import useSWR from "swr";
 import {
   configAtom,
   openComposeAtom,
+  openCreateWorkspaceOpenAtom,
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
@@ -48,7 +50,19 @@ import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLoader } from "@/components/ui/button";
+import { WorkspaceSidebar } from "./workspace-sidebar";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
+import { useEdgeStore } from "@/utils/edgestore";
 
 interface MailProps {
   accounts: {
@@ -63,7 +77,7 @@ interface MailProps {
 
 export function Mail({
   accounts,
-  defaultLayout = [265, 440, 655],
+  defaultLayout = [225, 440, 655],
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
@@ -108,9 +122,16 @@ export function Mail({
   });
 
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+  const [file, setFile] = React.useState<File | undefined>();
+  const [isUploading, setIsUploading] = React.useState(false);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
+  const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
+    openCreateWorkspaceOpenAtom,
+  );
+
+  const { edgestore } = useEdgeStore();
 
   const mail = useAtomValue(configAtom);
 
@@ -221,6 +242,81 @@ export function Mail({
           )}`;
         }}
       >
+        <WorkspaceSidebar />
+        <Dialog
+          open={createWorkspaceOpen}
+          onOpenChange={() => setCreateWorkspaceOpen(!createWorkspaceOpen)}
+        >
+          <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+              <DialogTitle className="pb-2 font-cal text-xl font-bold">
+                Create Workspace
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex flex-col space-y-2">
+                <Label>Logo</Label>
+                <SingleImageDropzone
+                  className="h-48 w-full"
+                  value={file}
+                  onChange={(file) => {
+                    setFile(file);
+                  }}
+                />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label>Name</Label>
+                <Input type="text" name="name" />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label>Description</Label>
+                <Input type="text" name="description" />
+              </div>
+            </div>
+            <DialogFooter>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => setCreateWorkspaceOpen(false)}
+                  variant="secondary"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (file) {
+                      setIsUploading(true);
+                      const res = await edgestore.publicFiles.upload({
+                        file,
+                        onProgressChange: (progress) => {
+                          // you can use this to show a progress bar
+                          console.log(progress);
+                        },
+                      });
+                      // you can run some server action or api here
+                      // to add the necessary data to your database
+                      console.log(res);
+                    }
+
+                    setIsUploading(false);
+                    setCreateWorkspaceOpen(false);
+                  }}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create
+                    </>
+                  )}
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <ResizablePanel
           defaultSize={defaultLayout[0]}
           collapsedSize={navCollapsedSize}
@@ -374,9 +470,6 @@ export function Mail({
                   )}
                 </div>
               </div>
-            </div>
-            <div className="p-4">
-              <ProfileDropdown />
             </div>
           </div>
         </ResizablePanel>
