@@ -26,7 +26,7 @@ export function CTAButtons() {
         Pre Order Now for 49.99€{" "}
         <span className="ml-2 text-gray-600 line-through">199€</span>
       </Button>
-      <div className="flex flex-col items-center justify-center font-cal">
+      <div className="mt-6 flex flex-col items-center justify-center font-cal md:mt-0">
         <TestimonialsAvatars priority={true} />
       </div>
       {/* <Button
