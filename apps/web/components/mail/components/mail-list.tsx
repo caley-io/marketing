@@ -169,7 +169,7 @@ export function MailList({ items }: MailListProps) {
   );
 }
 
-function getBadgeVariantFromLabel(
+export function getBadgeVariantFromLabel(
   label: string,
 ): ComponentProps<typeof Badge>["variant"] {
   if (label.toLowerCase().includes("work")) {
@@ -183,7 +183,7 @@ function getBadgeVariantFromLabel(
   return "secondary";
 }
 
-function getBadgeTextFormatted(label: string) {
+export function getBadgeTextFormatted(label: string) {
   if (label.toLowerCase().includes("work")) {
     return "Work";
   }

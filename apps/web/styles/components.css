@@ -1,0 +1,270 @@
+.sonner-toast {
+  @apply min-h-[60px] rounded-xl border-transparent pl-6 text-sm text-foreground shadow-popover dark:bg-gray-900 !important;
+}
+
+.fancy-button {
+  border: none;
+  background: linear-gradient(156deg, #fff, #f0f0f0);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 1px 0 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.04), 0 3px 3px 0 rgba(0, 0, 0, 0.02),
+    0 4px 4px 0 rgba(0, 0, 0, 0.01);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: #171717;
+}
+
+.dark .fancy-button {
+  background: linear-gradient(156deg, var(--secondary), #070D19);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 1px 0 0 rgba(255, 255, 255, 0.08), 0 2px 2px 0 rgba(255, 255, 255, 0.04),
+    0 3px 3px 0 rgba(255, 255, 255, 0.02), 0 4px 4px 0 rgba(255, 255, 255, 0.01);
+  color: #fff;
+}
+
+.fancy-button::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  background: blue;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  background: linear-gradient(0deg,
+      #e8e8e8 0,
+      hsla(0, 0%, 91%, 0.987) 8.1%,
+      hsla(0, 0%, 91%, 0.951) 15.5%,
+      hsla(0, 0%, 91%, 0.896) 22.5%,
+      hsla(0, 0%, 91%, 0.825) 29%,
+      hsla(0, 0%, 91%, 0.741) 35.3%,
+      hsla(0, 0%, 91%, 0.648) 41.2%,
+      hsla(0, 0%, 91%, 0.55) 47.1%,
+      hsla(0, 0%, 91%, 0.45) 52.9%,
+      hsla(0, 0%, 91%, 0.352) 58.8%,
+      hsla(0, 0%, 91%, 0.259) 64.7%,
+      hsla(0, 0%, 91%, 0.175) 71%,
+      hsla(0, 0%, 91%, 0.104) 77.5%,
+      hsla(0, 0%, 91%, 0.049) 84.5%,
+      hsla(0, 0%, 91%, 0.013) 91.9%,
+      hsla(0, 0%, 91%, 0));
+  opacity: 0.6;
+  transition: transform 0.2s;
+}
+
+.dark .fancy-button::after {
+  background: linear-gradient(0deg,
+      #0f0f0f 0,
+      hsla(0, 0%, 0%, 0.987) 8.1%,
+      hsla(0, 0%, 0%, 0.951) 15.5%,
+      hsla(0, 0%, 0%, 0.896) 22.5%,
+      hsla(0, 0%, 0%, 0.825) 29%,
+      hsla(0, 0%, 0%, 0.741) 35.3%,
+      hsla(0, 0%, 0%, 0.648) 41.2%,
+      hsla(0, 0%, 0%, 0.55) 47.1%,
+      hsla(0, 0%, 0%, 0.45) 52.9%,
+      hsla(0, 0%, 0%, 0.352) 58.8%,
+      hsla(0, 0%, 0%, 0.259) 64.7%,
+      hsla(0, 0%, 0%, 0.175) 71%,
+      hsla(0, 0%, 0%, 0.104) 77.5%,
+      hsla(0, 0%, 0%, 0.049) 84.5%,
+      hsla(0, 0%, 0%, 0.013) 91.9%,
+      hsla(0, 0%, 0%, 0));
+}
+
+.fancy-button:hover::after {
+  transform: translateY(-100%);
+}
+
+.gradient-box {
+  box-shadow: 0px 0px 20px 0px rgba(20, 20, 20, 0.1) inset;
+  position: relative;
+  background: conic-gradient(from calc(var(--r2) - 80deg) at var(--x) 20px,
+      #fff 0%,
+      #000 20%,
+      #fff 25%);
+  animation: -0.64s rotating2 2s linear infinite, -0.64s x 2s linear infinite;
+}
+
+.gradient-box::after {
+  content: "";
+  display: block;
+  position: absolute;
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(to right, rgba(20, 20, 20, 0.4), hsl(0 0% 14.2%)) border-box;
+  inset: 1.5px;
+  border-radius: 45px;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.dark .gradient-box {
+  box-shadow: 0px 0px 20px 0px rgba(236, 237, 238, 0.1) inset;
+  position: relative;
+  background: conic-gradient(from calc(var(--r2) - 80deg) at var(--x) 20px,
+      #222 0%,
+      #fff 20%,
+      #222 25%);
+  animation: -0.64s rotating2 2s linear infinite, -0.64s x 2s linear infinite;
+}
+
+.dark .gradient-box::after {
+  content: "";
+  display: block;
+  position: absolute;
+  background: linear-gradient(hsl(0, 0%, 11%), hsl(0, 0%, 17.9%)) padding-box,
+    linear-gradient(to right, rgba(236, 237, 238, 0.4), hsl(0 0% 85.8%)) border-box;
+  inset: 2px;
+  border-radius: 45px;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+@property --r {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --r2 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes x {
+  0% {
+    --x: 20px;
+  }
+
+  100% {
+    --x: 20px;
+  }
+}
+
+@keyframes rotating2 {
+  0% {
+    --r2: 0deg;
+  }
+
+  100% {
+    --r2: 360deg;
+  }
+}
+
+.ai-tools-section-lock {
+  animation: ai-tools-section-lock-animation 0.3s ease-in-out;
+  -webkit-animation: ai-tools-section-lock-animation 0.3s ease-in-out;
+  backdrop-filter: blur(5px);
+}
+
+@keyframes ai-tools-section-lock-animation {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* home gradient */
+
+@keyframes jumbo {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
+}
+
+.jumbo {
+  --stripes: repeating-linear-gradient(100deg,
+      #fff 0%,
+      #fff 7%,
+      transparent 10%,
+      transparent 12%,
+      #fff 16%);
+  --stripesDark: repeating-linear-gradient(100deg,
+      #000 0%,
+      #000 7%,
+      transparent 10%,
+      transparent 12%,
+      #000 16%);
+  --rainbow: repeating-linear-gradient(100deg,
+      #60a5fa 10%,
+      #e879f9 15%,
+      #60a5fa 20%,
+      #5eead4 25%,
+      #60a5fa 30%);
+  background-image: var(--stripes), var(--rainbow);
+  background-size: 300%, 200%;
+  background-position: 50% 50%, 50% 50%;
+
+  filter: blur(10px) invert(100%);
+
+  mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
+
+  pointer-events: none;
+}
+
+.jumbo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--stripes), var(--rainbow);
+  background-size: 200%, 100%;
+  animation: jumbo 60s linear infinite;
+  background-attachment: fixed;
+  mix-blend-mode: difference;
+}
+
+.dark .jumbo {
+  background-image: var(--stripesDark), var(--rainbow);
+  filter: blur(10px) opacity(50%) saturate(200%);
+}
+
+.dark .jumbo::after {
+  background-image: var(--stripesDark), var(--rainbow);
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: linear-gradient(90deg,
+      rgba(111, 190, 153, 255) 0%,
+      rgba(135, 200, 171, 255) 10%,
+      rgba(81, 187, 181, 255) 20%,
+      rgba(55, 188, 228, 255) 30%,
+      rgba(136, 206, 230, 255) 50%,
+      rgba(155, 173, 210, 255) 60%,
+      rgba(192, 113, 173, 255) 70%,
+      rgba(225, 56, 139, 255) 80%,
+      rgba(231, 116, 171, 255) 100%) !important;
+  border-radius: 20px !important;
+  opacity: 0.3 !important;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.dark .react-grid-item>.react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px !important;
+  bottom: 3px !important;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid hsl(213 31% 91%) !important;
+  border-bottom: 2px solid hsl(213 31% 91%) !important;
+}

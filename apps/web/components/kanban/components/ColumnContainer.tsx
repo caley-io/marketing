@@ -58,7 +58,7 @@ function ColumnContainer({
       <div
         ref={setNodeRef}
         style={style}
-        className="flex h-full w-[350px] flex-col rounded-md border-2 border-pink-500 opacity-40"
+        className="flex h-full w-[400px] flex-col rounded-md border-2 border-pink-500 bg-background opacity-40"
       ></div>
     );
   }
@@ -67,7 +67,7 @@ function ColumnContainer({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex h-full w-[350px] flex-col rounded-md"
+      className="flex h-full w-[400px] flex-col rounded-md bg-background"
     >
       {/* Column title */}
       <div

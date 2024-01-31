@@ -6,6 +6,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
 import { Logo } from "@/components/Logo";
+import { Button } from "@/components/Button";
+import { GithubIcon } from "lucide-react";
 
 const navigation = [
   { name: "Features", href: "/#features" },
@@ -60,6 +62,16 @@ export function Header() {
           >
             Log in <span aria-hidden="true">&rarr;</span>
           </Link> */}
+          <Link
+            href="/github"
+            className="flex items-center justify-center text-sm font-semibold leading-6 text-foreground"
+            onClick={() => {
+              posthog.capture("Clicked Star on Github", {});
+            }}
+          >
+            <GithubIcon className="mr-2 h-4 w-4" />
+            Star us on GitHub
+          </Link>
         </div>
       </nav>
       <Dialog
@@ -110,6 +122,20 @@ export function Header() {
                   Log in
                 </Link>
               </div> */}
+
+              <div className="py-6">
+                <Button
+                  size="xl"
+                  color="transparent"
+                  link={{ href: "/github", target: "_blank" }}
+                  onClick={() => {
+                    posthog.capture("Clicked Star on Github", {});
+                  }}
+                >
+                  <GithubIcon className="mr-2 h-4 w-4" />
+                  Star us on GitHub
+                </Button>
+              </div>
             </div>
           </div>
         </Dialog.Panel>

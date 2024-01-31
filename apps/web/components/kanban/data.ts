@@ -1,5 +1,9 @@
 export const defaultCols: Column[] = [
   {
+    id: "backlog",
+    title: "Backlog",
+  },
+  {
     id: "todo",
     title: "Todo",
   },

@@ -4,6 +4,13 @@ import { TrashIcon } from "lucide-react";
 import { Id, Task } from "../data";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { cn } from "@/utils";
+import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import {
+  getBadgeTextFormatted,
+  getBadgeVariantFromLabel,
+} from "@/components/mail/components/mail-list";
 
 interface Props {
   task: Task;
@@ -13,7 +20,7 @@ interface Props {
 
 function TaskCard({ task, deleteTask, updateTask }: Props) {
   const [mouseIsOver, setMouseIsOver] = useState(false);
-  const [editMode, setEditMode] = useState(true);
+  const [editMode, setEditMode] = useState(false);
 
   const {
     setNodeRef,
@@ -60,24 +67,25 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
         style={style}
         {...attributes}
         {...listeners}
-        className="relative flex h-[100px] min-h-[100px] cursor-grab items-center rounded-xl bg-background p-2.5 text-left hover:ring-2 hover:ring-inset hover:ring-rose-500"
+        className="flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
       >
-        <textarea
-          className="
-        h-[90%]
-        w-full resize-none rounded border-none bg-transparent  focus:outline-none
-        "
-          value={task.content}
-          autoFocus
-          placeholder="Task content here"
-          onBlur={toggleEditMode}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.shiftKey) {
-              toggleEditMode();
-            }
-          }}
-          onChange={(e) => updateTask(task.id, e.target.value)}
-        />
+        <div className="flex w-full flex-col gap-1">
+          <div className="flex items-center">
+            <div className="flex items-center gap-2">
+              <div className="font-semibold">Jeremy Scatigna</div>
+
+              <span className="flex h-2 w-2 rounded-full bg-blue-600" />
+            </div>
+            <div className={cn("ml-auto text-xs text-muted-foreground")}>
+              {formatDistanceToNow(new Date(), {
+                addSuffix: true,
+              })}
+            </div>
+          </div>
+          <div className="text-xs font-medium">
+            🗞 What's New: Making a living from open source projects
+          </div>
+        </div>
       </div>
     );
   }
@@ -88,29 +96,42 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
       style={style}
       {...attributes}
       {...listeners}
-      onClick={toggleEditMode}
-      className="task relative flex h-[100px] min-h-[100px] cursor-grab items-center rounded-xl border bg-background p-2.5 text-left hover:ring-2 hover:ring-inset hover:ring-rose-500"
-      onMouseEnter={() => {
-        setMouseIsOver(true);
-      }}
-      onMouseLeave={() => {
-        setMouseIsOver(false);
-      }}
+      className="flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
     >
-      <p className="my-auto h-[90%] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap">
-        {task.content}
-      </p>
+      <div className="flex w-full flex-col gap-1">
+        <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <div className="font-semibold">Jeremy Scatigna</div>
 
-      {mouseIsOver && (
-        <button
-          onClick={() => {
-            deleteTask(task.id);
-          }}
-          className="bg-columnBackgroundColor absolute right-4 top-1/2 -translate-y-1/2 rounded stroke-white p-2 opacity-60 hover:opacity-100"
-        >
-          <TrashIcon />
-        </button>
-      )}
+            <span className="flex h-2 w-2 rounded-full bg-blue-600" />
+          </div>
+          <div className={cn("ml-auto text-xs text-muted-foreground")}>
+            {formatDistanceToNow(new Date(), {
+              addSuffix: true,
+            })}
+          </div>
+        </div>
+        <div className="text-xs font-medium">
+          🗞 What's New: Making a living from open source projects
+        </div>
+      </div>
+      <div className="line-clamp-2 text-xs text-muted-foreground">
+        Read the best news on open source and Indie Hacking
+      </div>
+
+      <div className="flex items-center gap-2">
+        {["Inbox", "Important"]
+          .filter(
+            (label) =>
+              !label.toLowerCase().includes("unread") &&
+              !label.toLowerCase().includes("label_"),
+          )
+          .map((label) => (
+            <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
+              {getBadgeTextFormatted(label)}
+            </Badge>
+          ))}
+      </div>
     </div>
   );
 }

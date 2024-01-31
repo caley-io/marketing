@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { CTAButtons } from "@/app/(landing)/home/CTAButtons";
+import { SparklesIcon } from "lucide-react";
+import TestimonialsAvatars from "../components/testimonials-avatar";
 
 export function HeroText(props: { children: React.ReactNode }) {
   return (
@@ -30,7 +32,12 @@ export function Hero(props: {
           {/* <HeroTag /> */}
 
           <div className="mx-auto flex max-w-3xl flex-col items-center justify-center text-center">
-            {/* <HeroText>{props.title || <HeroHeadingAB />}</HeroText> */}
+            <div className="gradient-box z-10 mb-8 rounded-full px-6 py-2.5 font-cal text-sm font-medium">
+              <span className="relative z-30">
+                Pay Once Use Forever{" "}
+                <SparklesIcon className="mb-1 inline-block h-4 w-4" />
+              </span>
+            </div>
             <HeroText>Emails</HeroText>
             <HeroText>But Smart and Beautiful</HeroText>
             <HeroSubtitle>
