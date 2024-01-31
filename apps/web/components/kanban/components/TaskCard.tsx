@@ -83,7 +83,7 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
             </div>
           </div>
           <div className="text-xs font-medium">
-            🗞 What's New: Making a living from open source projects
+            🗞 What&apos;s New: Making a living from open source projects
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
           </div>
         </div>
         <div className="text-xs font-medium">
-          🗞 What's New: Making a living from open source projects
+          🗞 What&apos;s New: Making a living from open source projects
         </div>
       </div>
       <div className="line-clamp-2 text-xs text-muted-foreground">
