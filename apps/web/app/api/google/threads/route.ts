@@ -12,6 +12,7 @@ import { getCategory } from "@/utils/redis/category";
 import { getThreadsBatch, parseGmailApiResponse } from "@/utils/gmail/thread";
 import { withError } from "@/utils/middleware";
 import { createGmailLabel } from "./archive/controller";
+import { getEmailSummary } from "@/utils/langbase";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ async function getThreads(query: ThreadsQuery) {
   const session = await auth();
   const email = session?.user.email;
   const emailDomain = email?.split("@")[1];
-  console.log("emailDomain", emailDomain);
+
   if (!email) throw new Error("Not authenticated");
 
   const gmail = getGmailClient(session);
@@ -101,6 +102,9 @@ async function getThreads(query: ThreadsQuery) {
           ...message,
         });
       });
+
+      // const summary = await getEmailSummary(messagesAsGMailMessage[0].text);
+      // console.log("summary", summary);
 
       const plan = await getPlan({ userId: session.user.id, threadId: id });
       const rule = plan
