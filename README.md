@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="[https://www.caley.io](https://github.com/caley-io/caley)">
+  <a href="https://github.com/caley-io/caley">
     <h1 align="center">The repo is being switched to Rails and is now located here</h1>
   </a>
 </p>
