@@ -47,7 +47,7 @@ const nextConfig = {
       },
       {
         source: "/github",
-        destination: "https://github.com/Magnet-wtf/caley.io",
+        destination: "https://github.com/caley-io/caley",
         permanent: true,
       },
       {
