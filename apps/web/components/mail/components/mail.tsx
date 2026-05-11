@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import {
-  AlertCircle,
   Archive,
   ArchiveX,
   Building,
@@ -11,15 +10,12 @@ import {
   Gauge,
   Inbox as InboxIcon,
   Loader2,
-  MessagesSquare,
   Newspaper,
   Pencil,
   Plus,
   Send,
-  ShoppingCart,
   Star,
   Trash2,
-  Users2,
 } from "lucide-react";
 
 import { AccountSwitcher } from "./account-switcher";
@@ -32,38 +28,43 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { useAtom } from "jotai";
+import useSWR, { useSWRConfig } from "swr";
 import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import useSWR from "swr";
-import {
-  configAtom,
   openComposeAtom,
   openCreateWorkspaceOpenAtom,
+  selectedWorkspaceIdAtom,
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
-import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button, ButtonLoader } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
 import { useEdgeStore } from "@/utils/edgestore";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import type { WorkspacesResponse } from "@/app/api/workspaces/route";
+
+type InviteRole = "ADMIN" | "USER";
 
 interface MailProps {
   accounts: {
@@ -125,16 +126,22 @@ export function Mail({
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [file, setFile] = React.useState<File | undefined>();
   const [isUploading, setIsUploading] = React.useState(false);
+  const [workspaceName, setWorkspaceName] = React.useState("");
+  const [workspaceError, setWorkspaceError] = React.useState<string | null>(
+    null,
+  );
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteRole, setInviteRole] = React.useState<InviteRole>("USER");
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
-  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
+  const [, setSelectedWorkspaceId] = useAtom(selectedWorkspaceIdAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
   );
 
   const { edgestore } = useEdgeStore();
-
-  const mail = useAtomValue(configAtom);
+  const { mutate } = useSWRConfig();
 
   React.useEffect(() => {
     if (threadsData) {
@@ -147,6 +154,81 @@ export function Mail({
       !isCollapsed,
     )}`;
     setIsCollapsed(!isCollapsed);
+  };
+
+  const resetWorkspaceDialog = () => {
+    setFile(undefined);
+    setWorkspaceName("");
+    setInviteEmail("");
+    setInviteRole("USER");
+    setWorkspaceError(null);
+  };
+
+  const createWorkspace = async () => {
+    const name = workspaceName.trim();
+    if (!name) return;
+
+    try {
+      setIsUploading(true);
+      setWorkspaceError(null);
+
+      let image: string | null = null;
+      if (file) {
+        const upload = await edgestore.publicFiles.upload({ file });
+        image = upload.url;
+      }
+
+      const response = await fetch("/api/workspaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.error || "Could not create workspace");
+      }
+
+      let data = (await response.json()) as WorkspacesResponse;
+      const createdWorkspace = data.workspaces?.find(
+        (workspace: { name: string }) => workspace.name === name,
+      );
+      const workspaceId = data.workspaceId ?? createdWorkspace?.id;
+
+      if (workspaceId && inviteEmail.trim()) {
+        const inviteResponse = await fetch(
+          `/api/workspaces/${encodeURIComponent(workspaceId)}/members`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: inviteEmail.trim(),
+              role: inviteRole,
+            }),
+          },
+        );
+
+        if (!inviteResponse.ok) {
+          const error = await inviteResponse.json();
+          throw new Error(error?.error || "Could not invite teammate");
+        }
+
+        data = (await inviteResponse.json()) as WorkspacesResponse;
+      }
+
+      if (workspaceId) {
+        setSelectedWorkspaceId(workspaceId);
+        window.localStorage.setItem("caley:selected-workspace", workspaceId);
+      }
+
+      await mutate("/api/workspaces", data, { revalidate: false });
+      setCreateWorkspaceOpen(false);
+      resetWorkspaceDialog();
+    } catch (error) {
+      setWorkspaceError((error as Error).message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const returnTab = () => {
@@ -246,7 +328,10 @@ export function Mail({
         <WorkspaceSidebar />
         <Dialog
           open={createWorkspaceOpen}
-          onOpenChange={() => setCreateWorkspaceOpen(!createWorkspaceOpen)}
+          onOpenChange={(open) => {
+            setCreateWorkspaceOpen(open);
+            if (!open) resetWorkspaceDialog();
+          }}
         >
           <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
@@ -267,12 +352,47 @@ export function Mail({
               </div>
               <div className="flex flex-col space-y-2">
                 <Label>Name</Label>
-                <Input type="text" name="name" />
+                <Input
+                  type="text"
+                  name="name"
+                  value={workspaceName}
+                  onChange={(event) => setWorkspaceName(event.target.value)}
+                  placeholder="Acme Support"
+                />
               </div>
-              <div className="flex flex-col space-y-2">
-                <Label>Description</Label>
-                <Input type="text" name="description" />
+              <div className="grid gap-4 rounded-lg border p-4">
+                <div className="flex flex-col space-y-2">
+                  <Label>Invite teammate</Label>
+                  <Input
+                    type="email"
+                    name="inviteEmail"
+                    value={inviteEmail}
+                    onChange={(event) => setInviteEmail(event.target.value)}
+                    placeholder="teammate@example.com"
+                  />
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label>Role</Label>
+                  <Select
+                    value={inviteRole}
+                    onValueChange={(value) =>
+                      setInviteRole(value as InviteRole)
+                    }
+                    disabled={!inviteEmail.trim()}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USER">Member</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              {workspaceError && (
+                <p className="text-sm text-destructive">{workspaceError}</p>
+              )}
             </div>
             <DialogFooter>
               <div className="flex space-x-2">
@@ -283,24 +403,8 @@ export function Mail({
                   Cancel
                 </Button>
                 <Button
-                  onClick={async () => {
-                    if (file) {
-                      setIsUploading(true);
-                      const res = await edgestore.publicFiles.upload({
-                        file,
-                        onProgressChange: (progress) => {
-                          // you can use this to show a progress bar
-                          console.log(progress);
-                        },
-                      });
-                      // you can run some server action or api here
-                      // to add the necessary data to your database
-                      console.log(res);
-                    }
-
-                    setIsUploading(false);
-                    setCreateWorkspaceOpen(false);
-                  }}
+                  onClick={createWorkspace}
+                  disabled={!workspaceName.trim() || isUploading}
                 >
                   {isUploading ? (
                     <>

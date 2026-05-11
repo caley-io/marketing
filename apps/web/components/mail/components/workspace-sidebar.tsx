@@ -6,11 +6,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { openCreateWorkspaceOpenAtom } from "@/utils/store";
-import { useSetAtom } from "jotai";
-import { Plus } from "lucide-react";
+import type { WorkspacesResponse } from "@/app/api/workspaces/route";
+import {
+  openCreateWorkspaceOpenAtom,
+  selectedWorkspaceIdAtom,
+} from "@/utils/store";
+import { cn } from "@/utils";
+import { useAtom, useSetAtom } from "jotai";
+import { Loader2, Plus } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import * as React from "react";
+import useSWR from "swr";
+
+const SELECTED_WORKSPACE_STORAGE_KEY = "caley:selected-workspace";
 
 const userNavigation = [
   { name: "Usage", href: "/usage" },
@@ -22,23 +31,90 @@ const userNavigation = [
 ];
 
 export function WorkspaceSidebar() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const setCreateWorkspaceOpen = useSetAtom(openCreateWorkspaceOpenAtom);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useAtom(
+    selectedWorkspaceIdAtom,
+  );
+  const { data, isLoading } = useSWR<WorkspacesResponse>("/api/workspaces");
+  const workspaces = React.useMemo(
+    () => data?.workspaces ?? [],
+    [data?.workspaces],
+  );
+
+  React.useEffect(() => {
+    const storedWorkspaceId = window.localStorage.getItem(
+      SELECTED_WORKSPACE_STORAGE_KEY,
+    );
+
+    if (storedWorkspaceId) setSelectedWorkspaceId(storedWorkspaceId);
+  }, [setSelectedWorkspaceId]);
+
+  React.useEffect(() => {
+    if (!workspaces.length) return;
+
+    const selectedWorkspaceExists = workspaces.some(
+      (workspace) => workspace.id === selectedWorkspaceId,
+    );
+
+    if (!selectedWorkspaceId || !selectedWorkspaceExists) {
+      const nextWorkspaceId = workspaces[0].id;
+      setSelectedWorkspaceId(nextWorkspaceId);
+      window.localStorage.setItem(
+        SELECTED_WORKSPACE_STORAGE_KEY,
+        nextWorkspaceId,
+      );
+    }
+  }, [selectedWorkspaceId, setSelectedWorkspaceId, workspaces]);
+
+  const selectWorkspace = (workspaceId: string) => {
+    setSelectedWorkspaceId(workspaceId);
+    window.localStorage.setItem(SELECTED_WORKSPACE_STORAGE_KEY, workspaceId);
+  };
+
   return (
     <div className="left-0 top-0 h-screen w-16 flex-col items-center justify-between space-y-2 border-r">
       <div className="flex h-full flex-col justify-between">
         <div className="flex flex-col items-center space-y-4 p-2">
-          <Button className="relative flex h-12 w-full items-center justify-center rounded-xl bg-foreground/60 font-cal text-xl font-semibold text-white">
-            <Image
-              src="https://github.com/jeremyscatigna.png"
-              fill={true}
-              alt="Workspace"
-              className="rounded-xl"
-            />
-          </Button>
-          <Button className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground/80 font-cal text-xl font-semibold text-white">
-            JS
-          </Button>
+          {isLoading && (
+            <div className="flex h-12 w-full items-center justify-center rounded-xl bg-muted">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {workspaces.map((workspace) => {
+            const initials = workspace.name
+              .split(" ")
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
+            const isSelected = workspace.id === selectedWorkspaceId;
+
+            return (
+              <Button
+                key={workspace.id}
+                type="button"
+                aria-label={`Switch to ${workspace.name}`}
+                title={workspace.name}
+                onClick={() => selectWorkspace(workspace.id)}
+                className={cn(
+                  "relative flex h-12 w-full items-center justify-center overflow-hidden rounded-xl border border-transparent bg-foreground/80 font-cal text-sm font-semibold text-white",
+                  isSelected && "border-primary ring-2 ring-primary/30",
+                )}
+              >
+                {workspace.image ? (
+                  <Image
+                    src={workspace.image}
+                    fill={true}
+                    alt=""
+                    className="object-cover"
+                  />
+                ) : (
+                  initials
+                )}
+              </Button>
+            );
+          })}
           <Button
             onClick={(e) => {
               e.preventDefault();
