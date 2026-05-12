@@ -39,6 +39,8 @@ export const POST = withError(async (request: NextRequest) => {
     userId: session.user.id,
     name: body.name,
     image: body.image,
+    email: session.user.email,
+    userName: session.user.name,
   });
 
   return NextResponse.json(

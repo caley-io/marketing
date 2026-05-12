@@ -2,9 +2,58 @@ import { MembershipRole } from "@prisma/client";
 
 import prisma from "@/utils/prisma";
 
-export type WorkspaceSummary = Awaited<
-  ReturnType<typeof getWorkspacesForUser>
->[number];
+export interface WorkspaceMemberSummary {
+  id: string;
+  role: MembershipRole;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  invited: boolean;
+}
+
+export interface WorkspaceEmailAccountSummary {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export interface WorkspaceEmailAccountAccess
+  extends WorkspaceEmailAccountSummary {
+  gmailAccessToken?: string | null;
+  gmailRefreshToken?: string | null;
+  gmailExpiresAt?: Date | null;
+}
+
+export interface WorkspaceSummary {
+  id: string;
+  name: string;
+  image?: string | null;
+  role: MembershipRole;
+  members: WorkspaceMemberSummary[];
+  emailAccounts: WorkspaceEmailAccountSummary[];
+}
+
+type WorkspaceMembershipRow = {
+  role: MembershipRole;
+  organization: {
+    id: string;
+    name: string;
+    image?: string | null;
+    emailAccounts: WorkspaceEmailAccountSummary[];
+    membership: {
+      id: string;
+      role: MembershipRole;
+      invitedEmail?: string | null;
+      invitedName?: string | null;
+      user?: {
+        id: string;
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+      } | null;
+    }[];
+  };
+};
 
 function personalWorkspaceName(user: {
   name?: string | null;
@@ -26,7 +75,15 @@ export async function ensurePersonalWorkspaceForUser(user: {
     select: { organizationId: true },
   });
 
-  if (existingMembership) return existingMembership.organizationId;
+  if (existingMembership) {
+    await ensureWorkspaceEmailAccount({
+      organizationId: existingMembership.organizationId,
+      email: user.email,
+      name: user.name,
+      userId: user.id,
+    });
+    return existingMembership.organizationId;
+  }
 
   const organization = await prisma.organization.create({
     data: {
@@ -42,10 +99,19 @@ export async function ensurePersonalWorkspaceForUser(user: {
     select: { id: true },
   });
 
+  await ensureWorkspaceEmailAccount({
+    organizationId: organization.id,
+    email: user.email,
+    name: user.name,
+    userId: user.id,
+  });
+
   return organization.id;
 }
 
-export async function getWorkspacesForUser(userId: string) {
+export async function getWorkspacesForUser(
+  userId: string,
+): Promise<WorkspaceSummary[]> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -58,7 +124,7 @@ export async function getWorkspacesForUser(userId: string) {
 
   if (user) await ensurePersonalWorkspaceForUser(user);
 
-  const memberships = await prisma.membership.findMany({
+  const memberships = (await prisma.membership.findMany({
     where: { userId },
     orderBy: { organization: { name: "asc" } },
     select: {
@@ -95,7 +161,7 @@ export async function getWorkspacesForUser(userId: string) {
         },
       },
     },
-  });
+  })) as WorkspaceMembershipRow[];
 
   return memberships.map(({ role, organization }) => ({
     id: organization.id,
@@ -118,6 +184,8 @@ export async function createWorkspaceForUser(options: {
   userId: string;
   name: string;
   image?: string | null;
+  email?: string | null;
+  userName?: string | null;
 }) {
   const organization = await prisma.organization.create({
     data: {
@@ -131,6 +199,13 @@ export async function createWorkspaceForUser(options: {
       },
     },
     select: { id: true },
+  });
+
+  await ensureWorkspaceEmailAccount({
+    organizationId: organization.id,
+    email: options.email,
+    name: options.userName,
+    userId: options.userId,
   });
 
   return organization.id;
@@ -150,4 +225,99 @@ export async function canManageWorkspace(options: {
   });
 
   return Boolean(membership);
+}
+
+export async function canAccessWorkspace(options: {
+  userId: string;
+  organizationId: string;
+}) {
+  const membership = await prisma.membership.findFirst({
+    where: {
+      userId: options.userId,
+      organizationId: options.organizationId,
+    },
+    select: { id: true },
+  });
+
+  return Boolean(membership);
+}
+
+export async function getWorkspaceEmailAccountsForUser(options: {
+  userId: string;
+  organizationId: string;
+}): Promise<WorkspaceEmailAccountAccess[] | null> {
+  const canAccess = await canAccessWorkspace(options);
+  if (!canAccess) return null;
+
+  return prisma.emailAccount.findMany({
+    where: { organizationId: options.organizationId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      gmailAccessToken: true,
+      gmailRefreshToken: true,
+      gmailExpiresAt: true,
+    },
+    orderBy: { email: "asc" },
+  }) as Promise<WorkspaceEmailAccountAccess[]>;
+}
+
+async function ensureWorkspaceEmailAccount(options: {
+  organizationId: string;
+  email?: string | null;
+  name?: string | null;
+  userId?: string | null;
+}) {
+  if (!options.email) return;
+
+  const googleAccount = options.userId
+    ? await prisma.account.findFirst({
+        where: { userId: options.userId, provider: "google" },
+        select: {
+          access_token: true,
+          refresh_token: true,
+          expires_at: true,
+        },
+      })
+    : null;
+  const tokenData = {
+    ...(googleAccount?.access_token
+      ? { gmailAccessToken: googleAccount.access_token }
+      : {}),
+    ...(googleAccount?.refresh_token
+      ? { gmailRefreshToken: googleAccount.refresh_token }
+      : {}),
+    ...(googleAccount?.expires_at
+      ? { gmailExpiresAt: new Date(googleAccount.expires_at * 1000) }
+      : {}),
+  };
+
+  const existingEmailAccount = await prisma.emailAccount.findFirst({
+    where: {
+      organizationId: options.organizationId,
+      email: options.email,
+    },
+    select: { id: true },
+  });
+
+  if (existingEmailAccount) {
+    await prisma.emailAccount.update({
+      where: { id: existingEmailAccount.id },
+      data: {
+        name: options.name ?? options.email,
+        ...tokenData,
+      },
+    });
+    return;
+  }
+
+  await prisma.emailAccount.create({
+    data: {
+      organizationId: options.organizationId,
+      email: options.email,
+      name: options.name ?? options.email,
+      ...tokenData,
+    },
+  });
 }

@@ -1,8 +1,10 @@
 import { MembershipRole } from "@prisma/client";
+import { sendWorkspaceInviteEmail } from "@inboxzero/resend";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
+import { env } from "@/env.mjs";
 import { withError } from "@/utils/middleware";
 import prisma from "@/utils/prisma";
 import { canManageWorkspace, getWorkspacesForUser } from "@/utils/workspace";
@@ -43,7 +45,19 @@ export const POST = withError(
     }
 
     const body = inviteMemberBody.parse(await request.json());
-    await prisma.membership.upsert({
+    const workspace = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { name: true },
+    });
+
+    if (!workspace) {
+      return NextResponse.json(
+        { error: "Workspace not found" },
+        { status: 404 },
+      );
+    }
+
+    const membership = await prisma.membership.upsert({
       where: {
         organizationId_invitedEmail: {
           organizationId,
@@ -59,6 +73,21 @@ export const POST = withError(
         invitedEmail: body.email,
         invitedName: body.name,
         role: body.role,
+      },
+      select: { id: true },
+    });
+
+    const acceptUrl = new URL(
+      `/api/workspaces/invitations/${membership.id}/accept`,
+      env.NEXT_PUBLIC_BASE_URL,
+    ).toString();
+
+    await sendWorkspaceInviteEmail({
+      to: body.email,
+      emailProps: {
+        acceptUrl,
+        invitedByName: session.user.name ?? session.user.email,
+        workspaceName: workspace.name,
       },
     });
 

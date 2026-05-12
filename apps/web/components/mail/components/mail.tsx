@@ -34,6 +34,7 @@ import useSWR, { useSWRConfig } from "swr";
 import {
   openComposeAtom,
   openCreateWorkspaceOpenAtom,
+  selectedEmailAccountIdAtom,
   selectedWorkspaceIdAtom,
   tabAtom,
   threadsAtom,
@@ -83,11 +84,93 @@ export function Mail({
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useAtom(
+    selectedWorkspaceIdAtom,
+  );
+  const [selectedEmailAccountId, setSelectedEmailAccountId] = useAtom(
+    selectedEmailAccountIdAtom,
+  );
+  const { data: workspacesData } =
+    useSWR<WorkspacesResponse>("/api/workspaces");
+  const workspaces = React.useMemo(
+    () => workspacesData?.workspaces ?? [],
+    [workspacesData?.workspaces],
+  );
+  const selectedWorkspace = React.useMemo(
+    () =>
+      workspaces.find((workspace) => workspace.id === selectedWorkspaceId) ??
+      workspaces[0],
+    [selectedWorkspaceId, workspaces],
+  );
+  const workspaceAccounts = React.useMemo(
+    () =>
+      selectedWorkspace?.emailAccounts.map((account) => ({
+        id: account.id,
+        label: account.name,
+        email: account.email,
+        icon: <InboxIcon />,
+      })) ?? [],
+    [selectedWorkspace?.emailAccounts],
+  );
+  const fallbackAccounts = React.useMemo(
+    () =>
+      accounts.map((account) => ({
+        ...account,
+        id: account.email,
+      })),
+    [accounts],
+  );
+  const accountOptions = selectedWorkspace
+    ? workspaceAccounts
+    : fallbackAccounts;
+
+  React.useEffect(() => {
+    if (!selectedWorkspace && !selectedWorkspaceId) return;
+
+    const nextWorkspaceId = selectedWorkspace?.id ?? null;
+    if (nextWorkspaceId && nextWorkspaceId !== selectedWorkspaceId) {
+      setSelectedWorkspaceId(nextWorkspaceId);
+    }
+  }, [selectedWorkspace, selectedWorkspaceId, setSelectedWorkspaceId]);
+
+  React.useEffect(() => {
+    if (!workspaceAccounts.length) {
+      setSelectedEmailAccountId(null);
+      return;
+    }
+
+    const selectedAccountExists = workspaceAccounts.some(
+      (account) => account.id === selectedEmailAccountId,
+    );
+    if (!selectedEmailAccountId || !selectedAccountExists) {
+      setSelectedEmailAccountId(workspaceAccounts[0].id);
+    }
+  }, [selectedEmailAccountId, setSelectedEmailAccountId, workspaceAccounts]);
+
+  const threadsKey = React.useCallback(
+    (params?: Record<string, string>) => {
+      if (!selectedWorkspaceId) return null;
+
+      const searchParams = new URLSearchParams({
+        workspaceId: selectedWorkspaceId,
+      });
+      if (selectedEmailAccountId) {
+        searchParams.set("emailAccountId", selectedEmailAccountId);
+      }
+      Object.entries(params ?? {}).forEach(([key, value]) => {
+        searchParams.set(key, value);
+      });
+
+      return `/api/google/threads?${searchParams.toString()}`;
+    },
+    [selectedEmailAccountId, selectedWorkspaceId],
+  );
+
   const {
     data: threadsData,
     error: threadsError,
     isLoading: threadsLoading,
-  } = useSWR("/api/google/threads", {
+  } = useSWR(threadsKey(), {
     keepPreviousData: true,
   });
 
@@ -95,7 +178,7 @@ export function Mail({
     data: doneEmailsData,
     error: doneEmailsError,
     isLoading: doneEmailsLoading,
-  } = useSWR("/api/google/threads?isDone=true", {
+  } = useSWR(threadsKey({ isDone: "true" }), {
     keepPreviousData: true,
   });
 
@@ -103,7 +186,7 @@ export function Mail({
     data: teamEmailsData,
     error: teamEmailsError,
     isLoading: teamEmailsLoading,
-  } = useSWR("/api/google/threads?isTeam=true", {
+  } = useSWR(threadsKey({ isTeam: "true" }), {
     keepPreviousData: true,
   });
 
@@ -111,7 +194,7 @@ export function Mail({
     data: calendarEmailsData,
     error: calendarEmailsError,
     isLoading: calendarEmailsLoading,
-  } = useSWR("/api/google/threads?isCalendar=true", {
+  } = useSWR(threadsKey({ isCalendar: "true" }), {
     keepPreviousData: true,
   });
 
@@ -119,7 +202,7 @@ export function Mail({
     data: sentEmailsData,
     error: sentEmailsError,
     isLoading: sentEmailsLoading,
-  } = useSWR("/api/google/threads?isSent=true", {
+  } = useSWR(threadsKey({ isSent: "true" }), {
     keepPreviousData: true,
   });
 
@@ -135,7 +218,6 @@ export function Mail({
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const [, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
-  const [, setSelectedWorkspaceId] = useAtom(selectedWorkspaceIdAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
   );
@@ -437,7 +519,22 @@ export function Mail({
               isCollapsed ? "h-[52px] flex-col" : "px-2",
             )}
           >
-            <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
+            {accountOptions.length ? (
+              <AccountSwitcher
+                isCollapsed={isCollapsed}
+                accounts={accountOptions}
+                selectedAccountId={
+                  selectedEmailAccountId ??
+                  accountOptions[0]?.id ??
+                  accountOptions[0]?.email
+                }
+                onAccountChange={setSelectedEmailAccountId}
+              />
+            ) : (
+              <div className="px-3 text-center text-xs text-muted-foreground">
+                No accounts
+              </div>
+            )}
           </div>
           <Separator />
           <div className="flex h-[calc(100vh-52px)] flex-col justify-between">

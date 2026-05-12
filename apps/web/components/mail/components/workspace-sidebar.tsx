@@ -16,6 +16,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { Loader2, Plus } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import * as React from "react";
 import useSWR from "swr";
 
@@ -32,6 +33,8 @@ const userNavigation = [
 
 export function WorkspaceSidebar() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const workspaceIdFromUrl = searchParams.get("workspaceId");
   const setCreateWorkspaceOpen = useSetAtom(openCreateWorkspaceOpenAtom);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useAtom(
     selectedWorkspaceIdAtom,
@@ -43,12 +46,21 @@ export function WorkspaceSidebar() {
   );
 
   React.useEffect(() => {
+    if (workspaceIdFromUrl) {
+      setSelectedWorkspaceId(workspaceIdFromUrl);
+      window.localStorage.setItem(
+        SELECTED_WORKSPACE_STORAGE_KEY,
+        workspaceIdFromUrl,
+      );
+      return;
+    }
+
     const storedWorkspaceId = window.localStorage.getItem(
       SELECTED_WORKSPACE_STORAGE_KEY,
     );
 
     if (storedWorkspaceId) setSelectedWorkspaceId(storedWorkspaceId);
-  }, [setSelectedWorkspaceId]);
+  }, [setSelectedWorkspaceId, workspaceIdFromUrl]);
 
   React.useEffect(() => {
     if (!workspaces.length) return;
