@@ -1,6 +1,7 @@
 import { z } from "zod";
 import he from "he";
 import { NextResponse } from "next/server";
+import type { Rule } from "@prisma/client";
 import { parseMessages } from "@/utils/mail";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import { getGmailAccessToken, getGmailClient } from "@/utils/gmail/client";
@@ -12,7 +13,7 @@ import { getCategory } from "@/utils/redis/category";
 import { getThreadsBatch, parseGmailApiResponse } from "@/utils/gmail/thread";
 import { withError } from "@/utils/middleware";
 import { createGmailLabel } from "./archive/controller";
-import { getEmailSummary } from "@/utils/langbase";
+import { getWorkspaceEmailAccountsForUser } from "@/utils/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,8 @@ const threadsQuery = z.object({
   isTeam: z.coerce.boolean().nullish(),
   isCalendar: z.coerce.boolean().nullish(),
   isSent: z.coerce.boolean().nullish(),
+  workspaceId: z.string().nullish(),
+  emailAccountId: z.string().nullish(),
 });
 export type ThreadsQuery = z.infer<typeof threadsQuery>;
 export type ThreadsResponse = Awaited<ReturnType<typeof getThreads>>;
@@ -33,13 +36,37 @@ export type ThreadsResponse = Awaited<ReturnType<typeof getThreads>>;
 async function getThreads(query: ThreadsQuery) {
   const session = await auth();
   const email = session?.user.email;
+  const userId = session?.user.id;
   const emailDomain = email?.split("@")[1];
 
-  if (!email) throw new Error("Not authenticated");
+  if (!email || !userId) throw new Error("Not authenticated");
 
-  const gmail = getGmailClient(session);
-  const token = await getGmailAccessToken(session);
-  const accessToken = token?.token;
+  let gmail = getGmailClient(session);
+  let token = await getGmailAccessToken(session);
+  let accessToken = token?.token;
+
+  if (query.workspaceId) {
+    const emailAccounts = await getWorkspaceEmailAccountsForUser({
+      userId,
+      organizationId: query.workspaceId,
+    });
+
+    if (!emailAccounts) throw new Error("Workspace not found");
+    if (emailAccounts.length === 0) return { threads: [] };
+
+    const emailAccount = query.emailAccountId
+      ? emailAccounts.find((account) => account.id === query.emailAccountId)
+      : emailAccounts.find((account) => account.email === email) ??
+        emailAccounts[0];
+
+    if (!emailAccount) return { threads: [] };
+
+    if (emailAccount.email !== email) {
+      if (!emailAccount.gmailAccessToken) return { threads: [] };
+      gmail = getGmailClient({ accessToken: emailAccount.gmailAccessToken });
+      accessToken = emailAccount.gmailAccessToken;
+    }
+  }
 
   if (!accessToken) throw new Error("Missing access token");
 
@@ -83,7 +110,9 @@ async function getThreads(query: ThreadsQuery) {
       maxResults: query.limit || 50,
       q: query.isTeam || query.isCalendar ? buildQuery() : undefined,
     }),
-    prisma.rule.findMany({ where: { userId: session.user.id } }),
+    prisma.rule.findMany({ where: { userId: session.user.id } }) as Promise<
+      Rule[]
+    >,
   ]);
 
   // may have been faster not using batch method, but doing 50 getMessages in parallel
@@ -134,6 +163,8 @@ export const GET = withError(async (request: Request) => {
   const isTeam = searchParams.get("isTeam");
   const isCalendar = searchParams.get("isCalendar");
   const isSent = searchParams.get("isSent");
+  const workspaceId = searchParams.get("workspaceId");
+  const emailAccountId = searchParams.get("emailAccountId");
   const query = threadsQuery.parse({
     limit,
     fromEmail,
@@ -142,6 +173,8 @@ export const GET = withError(async (request: Request) => {
     isTeam,
     isCalendar,
     isSent,
+    workspaceId,
+    emailAccountId,
   });
 
   const threads = await getThreads(query);

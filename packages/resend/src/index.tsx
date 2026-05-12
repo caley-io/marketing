@@ -2,6 +2,9 @@ import { JSXElementConstructor, ReactElement } from "react";
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
 import StatsUpdateEmail, { StatsUpdateEmailProps } from "../emails/stats";
+import WorkspaceInviteEmail, {
+  WorkspaceInviteEmailProps,
+} from "../emails/workspace-invite";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -67,6 +70,29 @@ export const sendStatsEmail = async ({
       {
         name: "category",
         value: "stats",
+      },
+    ],
+  });
+};
+
+export const sendWorkspaceInviteEmail = async ({
+  to,
+  test,
+  emailProps,
+}: {
+  to: string;
+  test?: boolean;
+  emailProps: WorkspaceInviteEmailProps;
+}) => {
+  return sendEmail({
+    to,
+    subject: `Join ${emailProps.workspaceName} on Caley.io`,
+    react: <WorkspaceInviteEmail {...emailProps} />,
+    test,
+    tags: [
+      {
+        name: "category",
+        value: "workspace_invite",
       },
     ],
   });
