@@ -13,6 +13,7 @@ import { getThreadsBatch, parseGmailApiResponse } from "@/utils/gmail/thread";
 import { withError } from "@/utils/middleware";
 import { createGmailLabel } from "./archive/controller";
 import { getEmailSummary } from "@/utils/langbase";
+import { getWorkspaceForUser } from "@/utils/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,8 @@ const threadsQuery = z.object({
   isTeam: z.coerce.boolean().nullish(),
   isCalendar: z.coerce.boolean().nullish(),
   isSent: z.coerce.boolean().nullish(),
+  workspaceId: z.string().nullish(),
+  emailAccountId: z.string().nullish(),
 });
 export type ThreadsQuery = z.infer<typeof threadsQuery>;
 export type ThreadsResponse = Awaited<ReturnType<typeof getThreads>>;
@@ -36,6 +39,25 @@ async function getThreads(query: ThreadsQuery) {
   const emailDomain = email?.split("@")[1];
 
   if (!email) throw new Error("Not authenticated");
+
+  if (query.workspaceId) {
+    const membership = await getWorkspaceForUser({
+      userId: session.user.id,
+      workspaceId: query.workspaceId,
+    });
+    if (!membership) throw new Error("Workspace not found");
+
+    const emailAccount = query.emailAccountId
+      ? membership.organization.emailAccounts.find(
+          (account) => account.id === query.emailAccountId,
+        )
+      : membership.organization.emailAccounts[0];
+
+    if (!emailAccount) return { threads: [] };
+    if (emailAccount.email.toLowerCase() !== email.toLowerCase()) {
+      return { threads: [] };
+    }
+  }
 
   const gmail = getGmailClient(session);
   const token = await getGmailAccessToken(session);
@@ -134,6 +156,8 @@ export const GET = withError(async (request: Request) => {
   const isTeam = searchParams.get("isTeam");
   const isCalendar = searchParams.get("isCalendar");
   const isSent = searchParams.get("isSent");
+  const workspaceId = searchParams.get("workspaceId");
+  const emailAccountId = searchParams.get("emailAccountId");
   const query = threadsQuery.parse({
     limit,
     fromEmail,
@@ -142,6 +166,8 @@ export const GET = withError(async (request: Request) => {
     isTeam,
     isCalendar,
     isSent,
+    workspaceId,
+    emailAccountId,
   });
 
   const threads = await getThreads(query);
