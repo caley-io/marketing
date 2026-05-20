@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import {
-  AlertCircle,
   Archive,
   ArchiveX,
   Building,
@@ -11,12 +10,10 @@ import {
   Gauge,
   Inbox as InboxIcon,
   Loader2,
-  MessagesSquare,
   Newspaper,
   Pencil,
   Plus,
   Send,
-  ShoppingCart,
   Star,
   Trash2,
   Users2,
@@ -32,25 +29,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { useAtom } from "jotai";
 import useSWR from "swr";
 import {
-  configAtom,
   openComposeAtom,
   openCreateWorkspaceOpenAtom,
+  selectedEmailAccountIdAtom,
+  selectedWorkspaceIdAtom,
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
-import { ProfileDropdown } from "@/components/TopNav";
+import type { WorkspaceSummary } from "@/utils/workspace";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button, ButtonLoader } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
   Dialog,
@@ -58,7 +52,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
@@ -80,13 +74,51 @@ export function Mail({
   accounts,
   defaultLayout = [225, 440, 655],
   defaultCollapsed = false,
-  navCollapsedSize,
 }: MailProps) {
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useAtom(
+    selectedWorkspaceIdAtom,
+  );
+  const [selectedEmailAccountId, setSelectedEmailAccountId] = useAtom(
+    selectedEmailAccountIdAtom,
+  );
+  const { data: workspacesData, mutate: mutateWorkspaces } = useSWR<{
+    workspaces: WorkspaceSummary[];
+  }>("/api/workspaces", {
+    keepPreviousData: true,
+  });
+  const workspaces = React.useMemo(
+    () => workspacesData?.workspaces ?? [],
+    [workspacesData],
+  );
+  const selectedWorkspace =
+    workspaces.find((workspace) => workspace.id === selectedWorkspaceId) ??
+    null;
+  const selectedWorkspaceHasAccount = selectedWorkspace?.emailAccounts.some(
+    (account) => account.id === selectedEmailAccountId,
+  );
+  const workspaceQuery = React.useMemo(() => {
+    const params = new URLSearchParams();
+    if (selectedWorkspaceId) params.set("workspaceId", selectedWorkspaceId);
+    if (selectedEmailAccountId)
+      params.set("emailAccountId", selectedEmailAccountId);
+    return params;
+  }, [selectedEmailAccountId, selectedWorkspaceId]);
+  const threadsUrl = React.useCallback(
+    (filters: Record<string, string | boolean> = {}) => {
+      const params = new URLSearchParams(workspaceQuery);
+      Object.entries(filters).forEach(([key, value]) => {
+        params.set(key, String(value));
+      });
+      const query = params.toString();
+      return `/api/google/threads${query ? `?${query}` : ""}`;
+    },
+    [workspaceQuery],
+  );
   const {
     data: threadsData,
     error: threadsError,
     isLoading: threadsLoading,
-  } = useSWR("/api/google/threads", {
+  } = useSWR(threadsUrl(), {
     keepPreviousData: true,
   });
 
@@ -94,7 +126,7 @@ export function Mail({
     data: doneEmailsData,
     error: doneEmailsError,
     isLoading: doneEmailsLoading,
-  } = useSWR("/api/google/threads?isDone=true", {
+  } = useSWR(threadsUrl({ isDone: true }), {
     keepPreviousData: true,
   });
 
@@ -102,7 +134,7 @@ export function Mail({
     data: teamEmailsData,
     error: teamEmailsError,
     isLoading: teamEmailsLoading,
-  } = useSWR("/api/google/threads?isTeam=true", {
+  } = useSWR(threadsUrl({ isTeam: true }), {
     keepPreviousData: true,
   });
 
@@ -110,7 +142,7 @@ export function Mail({
     data: calendarEmailsData,
     error: calendarEmailsError,
     isLoading: calendarEmailsLoading,
-  } = useSWR("/api/google/threads?isCalendar=true", {
+  } = useSWR(threadsUrl({ isCalendar: true }), {
     keepPreviousData: true,
   });
 
@@ -118,15 +150,22 @@ export function Mail({
     data: sentEmailsData,
     error: sentEmailsError,
     isLoading: sentEmailsLoading,
-  } = useSWR("/api/google/threads?isSent=true", {
+  } = useSWR(threadsUrl({ isSent: true }), {
     keepPreviousData: true,
   });
 
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [file, setFile] = React.useState<File | undefined>();
   const [isUploading, setIsUploading] = React.useState(false);
+  const [workspaceName, setWorkspaceName] = React.useState("");
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteName, setInviteName] = React.useState("");
+  const [inviteRole, setInviteRole] = React.useState<"ADMIN" | "USER">("USER");
+  const [createWorkspaceError, setCreateWorkspaceError] = React.useState<
+    string | null
+  >(null);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
-  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
@@ -134,7 +173,96 @@ export function Mail({
 
   const { edgestore } = useEdgeStore();
 
-  const mail = useAtomValue(configAtom);
+  const workspaceAccounts = React.useMemo(() => {
+    if (!selectedWorkspace) return accounts;
+
+    return selectedWorkspace.emailAccounts.map((account) => ({
+      id: account.id,
+      label: account.name,
+      email: account.email,
+      icon: <Users2 className="h-4 w-4" />,
+    }));
+  }, [accounts, selectedWorkspace]);
+
+  React.useEffect(() => {
+    if (!workspaces.length) {
+      setSelectedWorkspaceId(null);
+      return;
+    }
+
+    if (
+      !selectedWorkspaceId ||
+      !workspaces.some((workspace) => workspace.id === selectedWorkspaceId)
+    ) {
+      setSelectedWorkspaceId(workspaces[0].id);
+    }
+  }, [selectedWorkspaceId, setSelectedWorkspaceId, workspaces]);
+
+  React.useEffect(() => {
+    if (!selectedWorkspace) {
+      setSelectedEmailAccountId(null);
+      return;
+    }
+
+    const firstAccountId = selectedWorkspace.emailAccounts[0]?.id ?? null;
+    if (!selectedEmailAccountId || !selectedWorkspaceHasAccount) {
+      setSelectedEmailAccountId(firstAccountId);
+    }
+  }, [
+    selectedEmailAccountId,
+    selectedWorkspace,
+    selectedWorkspaceHasAccount,
+    setSelectedEmailAccountId,
+  ]);
+
+  async function handleCreateWorkspace() {
+    setCreateWorkspaceError(null);
+    if (!workspaceName.trim()) {
+      setCreateWorkspaceError("Workspace name is required.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      let image: string | undefined;
+
+      if (file) {
+        const res = await edgestore.publicFiles.upload({
+          file,
+        });
+        image = res.url;
+      }
+
+      const response = await fetch("/api/workspaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: workspaceName,
+          image,
+          inviteEmail,
+          inviteName,
+          inviteRole,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Could not create workspace");
+
+      const result = await response.json();
+      await mutateWorkspaces();
+      setSelectedWorkspaceId(result.workspace.id);
+      setSelectedEmailAccountId(result.workspace.emailAccounts[0]?.id ?? null);
+      setWorkspaceName("");
+      setInviteEmail("");
+      setInviteName("");
+      setInviteRole("USER");
+      setFile(undefined);
+      setCreateWorkspaceOpen(false);
+    } catch (error) {
+      setCreateWorkspaceError((error as Error).message);
+    } finally {
+      setIsUploading(false);
+    }
+  }
 
   React.useEffect(() => {
     if (threadsData) {
@@ -243,10 +371,14 @@ export function Mail({
           )}`;
         }}
       >
-        <WorkspaceSidebar />
+        <WorkspaceSidebar
+          workspaces={workspaces}
+          selectedWorkspaceId={selectedWorkspaceId}
+          onSelectWorkspace={setSelectedWorkspaceId}
+        />
         <Dialog
           open={createWorkspaceOpen}
-          onOpenChange={() => setCreateWorkspaceOpen(!createWorkspaceOpen)}
+          onOpenChange={setCreateWorkspaceOpen}
         >
           <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
@@ -267,12 +399,50 @@ export function Mail({
               </div>
               <div className="flex flex-col space-y-2">
                 <Label>Name</Label>
-                <Input type="text" name="name" />
+                <Input
+                  type="text"
+                  name="name"
+                  value={workspaceName}
+                  onChange={(event) => setWorkspaceName(event.target.value)}
+                />
               </div>
               <div className="flex flex-col space-y-2">
-                <Label>Description</Label>
-                <Input type="text" name="description" />
+                <Label>Invite teammate email</Label>
+                <Input
+                  type="email"
+                  name="inviteEmail"
+                  value={inviteEmail}
+                  onChange={(event) => setInviteEmail(event.target.value)}
+                  placeholder="teammate@example.com"
+                />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col space-y-2">
+                  <Label>Teammate name</Label>
+                  <Input
+                    type="text"
+                    name="inviteName"
+                    value={inviteName}
+                    onChange={(event) => setInviteName(event.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label>Role</Label>
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={inviteRole}
+                    onChange={(event) =>
+                      setInviteRole(event.target.value as "ADMIN" | "USER")
+                    }
+                  >
+                    <option value="USER">User</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+              </div>
+              {createWorkspaceError && (
+                <p className="text-sm text-red-500">{createWorkspaceError}</p>
+              )}
             </div>
             <DialogFooter>
               <div className="flex space-x-2">
@@ -283,24 +453,8 @@ export function Mail({
                   Cancel
                 </Button>
                 <Button
-                  onClick={async () => {
-                    if (file) {
-                      setIsUploading(true);
-                      const res = await edgestore.publicFiles.upload({
-                        file,
-                        onProgressChange: (progress) => {
-                          // you can use this to show a progress bar
-                          console.log(progress);
-                        },
-                      });
-                      // you can run some server action or api here
-                      // to add the necessary data to your database
-                      console.log(res);
-                    }
-
-                    setIsUploading(false);
-                    setCreateWorkspaceOpen(false);
-                  }}
+                  onClick={handleCreateWorkspace}
+                  disabled={isUploading || !workspaceName.trim()}
                 >
                   {isUploading ? (
                     <>
@@ -333,7 +487,12 @@ export function Mail({
               isCollapsed ? "h-[52px] flex-col" : "px-2",
             )}
           >
-            <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
+            <AccountSwitcher
+              isCollapsed={isCollapsed}
+              accounts={workspaceAccounts}
+              selectedAccountId={selectedEmailAccountId}
+              onSelectAccount={setSelectedEmailAccountId}
+            />
           </div>
           <Separator />
           <div className="flex h-[calc(100vh-52px)] flex-col justify-between">

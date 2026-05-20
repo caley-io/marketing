@@ -6,6 +6,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { createContact } from "@/utils/loops";
 import prisma from "@/utils/prisma";
 import { env } from "@/env.mjs";
+import { ensurePersonalWorkspaceForUser } from "@/utils/workspace";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.profile",
@@ -114,6 +115,15 @@ export const getAuthOptions: (options?: {
   },
   events: {
     signIn: async ({ isNewUser, user }) => {
+      if (user.id && user.email) {
+        await ensurePersonalWorkspaceForUser({
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        });
+      }
+
       if (isNewUser && user.email) {
         await createContact(user.email);
       }
