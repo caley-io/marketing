@@ -25,11 +25,24 @@ export function AccountSwitcher({
   accounts,
 }: AccountSwitcherProps) {
   const [selectedAccount, setSelectedAccount] = React.useState<string>(
-    accounts[0].email,
+    accounts[0]?.email || "",
+  );
+  const selectedAccountDetails = accounts.find(
+    (account) => account.email === selectedAccount,
   );
 
+  React.useEffect(() => {
+    if (!accounts.some((account) => account.email === selectedAccount)) {
+      setSelectedAccount(accounts[0]?.email || "");
+    }
+  }, [accounts, selectedAccount]);
+
+  if (!accounts.length) {
+    return null;
+  }
+
   return (
-    <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
+    <Select value={selectedAccount} onValueChange={setSelectedAccount}>
       <SelectTrigger
         className={cn(
           "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
@@ -39,12 +52,9 @@ export function AccountSwitcher({
         aria-label="Select account"
       >
         <SelectValue placeholder="Select an account">
-          {accounts.find((account) => account.email === selectedAccount)?.icon}
+          {selectedAccountDetails?.icon}
           <span className={cn("ml-2", isCollapsed && "hidden")}>
-            {
-              accounts.find((account) => account.email === selectedAccount)
-                ?.label
-            }
+            {selectedAccountDetails?.label}
           </span>
         </SelectValue>
       </SelectTrigger>
