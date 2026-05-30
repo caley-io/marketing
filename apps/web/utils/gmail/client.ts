@@ -1,6 +1,8 @@
 import { google } from "googleapis";
+import type { EmailAccount } from "@prisma/client";
 import { saveRefreshToken } from "@/utils/auth";
 import { env } from "@/env.mjs";
+import prisma from "@/utils/prisma";
 
 type ClientOptions = {
   accessToken?: string;
@@ -66,4 +68,47 @@ export const getGmailClientWithRefresh = async (
   }
 
   return gmail;
+};
+
+export const getGmailClientForEmailAccount = async (
+  emailAccount: Pick<
+    EmailAccount,
+    "id" | "gmailAccessToken" | "gmailRefreshToken" | "gmailExpiresAt"
+  >,
+) => {
+  const auth = getClient({
+    accessToken: emailAccount.gmailAccessToken ?? undefined,
+    refreshToken: emailAccount.gmailRefreshToken ?? undefined,
+  });
+  const gmail = google.gmail({ version: "v1", auth });
+
+  if (
+    emailAccount.gmailAccessToken &&
+    emailAccount.gmailExpiresAt &&
+    emailAccount.gmailExpiresAt.getTime() > Date.now() + 10_000
+  ) {
+    return { gmail, accessToken: emailAccount.gmailAccessToken };
+  }
+
+  if (!emailAccount.gmailRefreshToken) {
+    return { gmail, accessToken: emailAccount.gmailAccessToken ?? undefined };
+  }
+
+  const tokens = await auth.refreshAccessToken();
+  const accessToken =
+    tokens.credentials.access_token ??
+    emailAccount.gmailAccessToken ??
+    undefined;
+
+  await prisma.emailAccount.update({
+    where: { id: emailAccount.id },
+    data: {
+      gmailAccessToken: tokens.credentials.access_token,
+      gmailExpiresAt: tokens.credentials.expiry_date
+        ? new Date(tokens.credentials.expiry_date)
+        : emailAccount.gmailExpiresAt,
+    },
+  });
+
+  return { gmail, accessToken };
 };
