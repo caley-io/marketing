@@ -80,7 +80,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
               </div>
               <TabsContent value="kanban" className="m-0">
                 <div className="h-full w-full p-4">
-                  <KanbanBoard />
+                  <KanbanBoard threads={data?.threads ?? []} />
                 </div>
               </TabsContent>
             </Tabs>

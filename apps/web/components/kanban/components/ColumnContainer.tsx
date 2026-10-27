@@ -78,14 +78,14 @@ function ColumnContainer({
         }}
         className="text-md flex h-[60px] cursor-grab items-center justify-between bg-background p-3 font-bold"
       >
-        <div className="flex gap-2">
-          <div className="flex items-center justify-center bg-background px-2 py-1 text-sm">
-            0
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center rounded bg-muted px-2 py-1 text-sm">
+            {tasks.length}
           </div>
           {!editMode && column.title}
           {editMode && (
             <input
-              className="rounded border bg-black px-2 outline-none focus:border-rose-500"
+              className="rounded border bg-background px-2 outline-none focus:border-rose-500"
               value={column.title}
               onChange={(e) => updateColumn(column.id, e.target.value)}
               autoFocus
@@ -100,7 +100,8 @@ function ColumnContainer({
           )}
         </div>
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             deleteColumn(column.id);
           }}
           className="hover:bg-columnBackgroundColor rounded stroke-gray-500 px-1 py-2 hover:stroke-white"
