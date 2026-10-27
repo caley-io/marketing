@@ -37,6 +37,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import useSWR from "swr";
 import {
@@ -78,10 +79,11 @@ interface MailProps {
 
 export function Mail({
   accounts,
-  defaultLayout = [225, 440, 655],
+  defaultLayout = [20, 32, 48],
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
+  const navPanelRef = React.useRef<ImperativePanelHandle>(null);
   const {
     data: threadsData,
     error: threadsError,
@@ -142,12 +144,26 @@ export function Mail({
     }
   }, [threadsData, setStateThreadsData]);
 
-  const handleOnCollapse = () => {
+  const handleCollapseStateChange = React.useCallback((collapsed: boolean) => {
+    setIsCollapsed(collapsed);
     document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-      !isCollapsed,
+      collapsed,
     )}`;
-    setIsCollapsed(!isCollapsed);
+  }, []);
+
+  const handleOnCollapse = () => {
+    const nextCollapsed = !isCollapsed;
+    if (navPanelRef.current) {
+      if (nextCollapsed) {
+        navPanelRef.current.collapse();
+      } else {
+        navPanelRef.current.expand();
+      }
+    }
+    handleCollapseStateChange(nextCollapsed);
   };
+
+  const singlePanelDefaultSize = defaultLayout[1] + defaultLayout[2];
 
   const returnTab = () => {
     switch (selectedTab) {
@@ -166,7 +182,10 @@ export function Mail({
         return <MailStats />;
       case "Drafts":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
+          <ResizablePanel
+            defaultSize={singlePanelDefaultSize}
+            className="h-screen"
+          >
             <div>Draft</div>
           </ResizablePanel>
         );
@@ -181,19 +200,28 @@ export function Mail({
         );
       case "Junk":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
+          <ResizablePanel
+            defaultSize={singlePanelDefaultSize}
+            className="h-screen"
+          >
             <div>Junk</div>
           </ResizablePanel>
         );
       case "Trash":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
+          <ResizablePanel
+            defaultSize={singlePanelDefaultSize}
+            className="h-screen"
+          >
             <div>Trash</div>
           </ResizablePanel>
         );
       case "Archive":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
+          <ResizablePanel
+            defaultSize={singlePanelDefaultSize}
+            className="h-screen"
+          >
             <div>Archive</div>
           </ResizablePanel>
         );
@@ -226,7 +254,10 @@ export function Mail({
         );
       case "VIP":
         return (
-          <ResizablePanel defaultSize={1095} className="h-screen">
+          <ResizablePanel
+            defaultSize={singlePanelDefaultSize}
+            className="h-screen"
+          >
             <div>Shopping</div>
           </ResizablePanel>
         );
@@ -318,13 +349,21 @@ export function Mail({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <div
+        <ResizablePanel
+          ref={navPanelRef}
+          defaultSize={defaultLayout[0]}
+          collapsedSize={navCollapsedSize}
+          collapsible={true}
+          minSize={15}
+          maxSize={20}
+          onCollapse={() => handleCollapseStateChange(true)}
+          onExpand={() => handleCollapseStateChange(false)}
           className={cn(
             isCollapsed &&
               "min-w-[50px] transition-all duration-300 ease-in-out",
             !isCollapsed &&
-              "min-w-[300px] transition-all duration-300 ease-in-out",
-            "relative border-r",
+              "min-w-[200px] transition-all duration-300 ease-in-out",
+            "relative",
           )}
         >
           <div
@@ -485,7 +524,8 @@ export function Mail({
               </div>
             </div>
           </div>
-        </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
         {returnTab()}
       </ResizablePanelGroup>
     </TooltipProvider>

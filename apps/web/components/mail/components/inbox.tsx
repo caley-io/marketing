@@ -88,7 +88,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
             <>
               <ResizablePanel
                 defaultSize={defaultLayout[1]}
-                minSize={100}
+                minSize={30}
                 className="h-screen"
               >
                 <Tabs defaultValue="all">
@@ -158,7 +158,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
               <ResizablePanel
                 defaultSize={defaultLayout[2]}
                 className="h-screen"
-                minSize={100}
+                minSize={30}
               >
                 {mail.selected === null ||
                 isLoading ||
