@@ -47,3 +47,7 @@ export const openComposeAtom = atom<boolean>(false);
 export const threadsAtom = atom<any>(null);
 
 export const openCreateWorkspaceOpenAtom = atom<boolean>(false);
+
+export const activeWorkspaceIdAtom = atom<string | null>(null);
+
+export const openWorkspaceManageAtom = atom<boolean>(false);

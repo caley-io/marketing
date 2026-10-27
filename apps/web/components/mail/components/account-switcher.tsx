@@ -25,11 +25,20 @@ export function AccountSwitcher({
   accounts,
 }: AccountSwitcherProps) {
   const [selectedAccount, setSelectedAccount] = React.useState<string>(
-    accounts[0].email,
+    accounts[0]?.email ?? "",
   );
 
+  React.useEffect(() => {
+    if (
+      accounts.length > 0 &&
+      !accounts.some((account) => account.email === selectedAccount)
+    ) {
+      setSelectedAccount(accounts[0].email);
+    }
+  }, [accounts, selectedAccount]);
+
   return (
-    <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
+    <Select value={selectedAccount} onValueChange={setSelectedAccount}>
       <SelectTrigger
         className={cn(
           "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
