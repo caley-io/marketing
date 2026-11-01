@@ -1,0 +1,71 @@
+/usage" },
+  {
+    name: "Sign out",
+    href: "#",
+    onClick: () => signOut({ callbackUrl: window.location.origin }),
+  },
+];
+
+export function WorkspaceSidebar() {
+  const { data: session, status } = useSession();
+  const setCreateWorkspaceOpen = useSetAtom(openCreateWorkspaceOpenAtom);
+  const [workspaces, setWorkspaces] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
+
+  // Load workspaces on mount
+  useEffect(() => {
+    async function loadWorkspaces() {
+      const res = await fetch("/api/workspaces");
+      if (res.ok) {
+        const data = await res.json();
+        setWorkspaces(data);
+        if (data.length > 0) {
+          setSelectedWorkspaceId(data[0].id);
+        }
+      }
+    }
+    loadWorkspaces();
+  }, []);
+
+  return (
+    <div className="left-0 top-0 h-screen w-16 flex-col items-center justify-between space-y-2 border-r">
+      <div className="flex h-full flex-col items-center space-y-2">
+        {/* User avatar and action buttons */}
+        <div className="flex w-full flex-col items-center space-y-4 p-2">
+          <Button
+            className="relative flex h-12 w-full items-center justify-center rounded-xl bg-foreground/60 font-cal text-xl font-semibold text-white"
+          >
+            <Image
+              src="https://github.com/jeremyscatigna.png"
+              fill={true}
+              alt="Workspace"
+              className="rounded-xl"
+            />
+          </Button>
+          <Button
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground/80 font-cal text-xl font-semibold text-white"
+          >
+            JS
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              setCreateWorkspaceOpen(true);
+            }}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-foreground font-cal text-xl font-semibold"
+          >
+            <Plus className="h-8 w-8 text-background" />
+          </Button>
+        </div>
+
+        {/* Workspace selector */}
+        {session && (
+          <div className="flex w-full flex-col items-center pb-4">
+            <WorkspaceSelector onSelect={setSelectedWorkspaceId} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
