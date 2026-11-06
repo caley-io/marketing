@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import {
-  AlertCircle,
   Archive,
   ArchiveX,
   Building,
@@ -11,15 +10,14 @@ import {
   Gauge,
   Inbox as InboxIcon,
   Loader2,
-  MessagesSquare,
+  Mail as MailIcon,
   Newspaper,
   Pencil,
   Plus,
   Send,
-  ShoppingCart,
   Star,
   Trash2,
-  Users2,
+  UserPlus,
 } from "lucide-react";
 
 import { AccountSwitcher } from "./account-switcher";
@@ -33,24 +31,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import useSWR from "swr";
 import {
+  activeEmailAccountAtom,
+  activeWorkspaceIdAtom,
   configAtom,
   openComposeAtom,
   openCreateWorkspaceOpenAtom,
+  openWorkspaceSettingsAtom,
   tabAtom,
   threadsAtom,
+  WorkspaceItem,
+  workspacesAtom,
 } from "@/utils/store";
-import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button, ButtonLoader } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
   Dialog,
@@ -58,12 +59,13 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
 import { useEdgeStore } from "@/utils/edgestore";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { WORKSPACE_ROLES, WorkspaceRole } from "@/utils/workspaces";
 
 interface MailProps {
   accounts: {
@@ -80,8 +82,60 @@ export function Mail({
   accounts,
   defaultLayout = [225, 440, 655],
   defaultCollapsed = false,
-  navCollapsedSize,
 }: MailProps) {
+  const { data: workspacesResponse, mutate: mutateWorkspaces } = useSWR<{
+    workspaces: WorkspaceItem[];
+  }>("/api/workspaces");
+
+  const [workspaces, setWorkspaces] = useAtom(workspacesAtom);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useAtom(
+    activeWorkspaceIdAtom,
+  );
+  const [activeEmailAccount, setActiveEmailAccount] = useAtom(
+    activeEmailAccountAtom,
+  );
+
+  React.useEffect(() => {
+    if (workspacesResponse?.workspaces) {
+      setWorkspaces(workspacesResponse.workspaces);
+      if (
+        !activeWorkspaceId &&
+        workspacesResponse.workspaces.length > 0
+      ) {
+        const firstWorkspace = workspacesResponse.workspaces[0];
+        setActiveWorkspaceId(firstWorkspace.id);
+        if (firstWorkspace.emailAccounts?.[0]?.email) {
+          setActiveEmailAccount(firstWorkspace.emailAccounts[0].email);
+        }
+      }
+    }
+  }, [
+    workspacesResponse,
+    activeWorkspaceId,
+    setWorkspaces,
+    setActiveWorkspaceId,
+    setActiveEmailAccount,
+  ]);
+
+  const activeWorkspace = React.useMemo(
+    () =>
+      workspaces.find((ws) => ws.id === activeWorkspaceId) ||
+      workspaces[0] ||
+      null,
+    [workspaces, activeWorkspaceId],
+  );
+
+  const switcherAccounts = React.useMemo(() => {
+    if (activeWorkspace?.emailAccounts?.length) {
+      return activeWorkspace.emailAccounts.map((acc) => ({
+        label: acc.name,
+        email: acc.email,
+        icon: <MailIcon className="h-4 w-4" />,
+      }));
+    }
+    return accounts;
+  }, [activeWorkspace, accounts]);
+
   const {
     data: threadsData,
     error: threadsError,
@@ -124,17 +178,34 @@ export function Mail({
 
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [file, setFile] = React.useState<File | undefined>();
+  const [workspaceName, setWorkspaceName] = React.useState("");
+  const [initialInviteEmail, setInitialInviteEmail] = React.useState("");
+  const [initialInviteRole, setInitialInviteRole] =
+    React.useState<WorkspaceRole>("USER");
   const [isUploading, setIsUploading] = React.useState(false);
+
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteName, setInviteName] = React.useState("");
+  const [inviteRole, setInviteRole] = React.useState<WorkspaceRole>("USER");
+  const [newAccountLabel, setNewAccountLabel] = React.useState("");
+  const [newAccountEmail, setNewAccountEmail] = React.useState("");
+  const [settingsStatus, setSettingsStatus] = React.useState<string | null>(
+    null,
+  );
+
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
-  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
   );
+  const [workspaceSettingsOpen, setWorkspaceSettingsOpen] = useAtom(
+    openWorkspaceSettingsAtom,
+  );
 
   const { edgestore } = useEdgeStore();
 
-  const mail = useAtomValue(configAtom);
+  useAtomValue(configAtom);
 
   React.useEffect(() => {
     if (threadsData) {
@@ -147,6 +218,162 @@ export function Mail({
       !isCollapsed,
     )}`;
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleCreateWorkspace = async () => {
+    if (!workspaceName.trim()) return;
+    setIsUploading(true);
+    try {
+      let uploadedImageUrl: string | undefined;
+      if (file) {
+        const res = await edgestore.publicFiles.upload({
+          file,
+        });
+        uploadedImageUrl = res.url;
+      }
+
+      const response = await fetch("/api/workspaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: workspaceName.trim(),
+          image: uploadedImageUrl,
+          invites: initialInviteEmail.trim()
+            ? [
+                {
+                  email: initialInviteEmail.trim(),
+                  role: initialInviteRole,
+                },
+              ]
+            : undefined,
+        }),
+      });
+
+      if (response.ok) {
+        const payload = await response.json();
+        await mutateWorkspaces();
+        if (payload.workspace?.id) {
+          setActiveWorkspaceId(payload.workspace.id);
+        }
+        setWorkspaceName("");
+        setInitialInviteEmail("");
+        setFile(undefined);
+        setCreateWorkspaceOpen(false);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleInviteMember = async () => {
+    if (!activeWorkspace || !inviteEmail.trim()) return;
+    setSettingsStatus(null);
+    const response = await fetch(
+      `/api/workspaces/${activeWorkspace.id}/members`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: inviteEmail.trim(),
+          name: inviteName.trim() || undefined,
+          role: inviteRole,
+        }),
+      },
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      setSettingsStatus(data?.error || "Failed to invite member");
+      return;
+    }
+    setInviteEmail("");
+    setInviteName("");
+    await mutateWorkspaces();
+  };
+
+  const handleRoleChange = async (
+    membershipId: string,
+    role: WorkspaceRole,
+  ) => {
+    if (!activeWorkspace) return;
+    setSettingsStatus(null);
+    const response = await fetch(
+      `/api/workspaces/${activeWorkspace.id}/members`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ membershipId, role }),
+      },
+    );
+    if (!response.ok) {
+      const data = await response.json();
+      setSettingsStatus(data?.error || "Failed to update role");
+      return;
+    }
+    await mutateWorkspaces();
+  };
+
+  const handleRemoveMember = async (membershipId: string) => {
+    if (!activeWorkspace) return;
+    setSettingsStatus(null);
+    const response = await fetch(
+      `/api/workspaces/${activeWorkspace.id}/members?membershipId=${encodeURIComponent(
+        membershipId,
+      )}`,
+      {
+        method: "DELETE",
+      },
+    );
+    if (!response.ok) {
+      const data = await response.json();
+      setSettingsStatus(data?.error || "Failed to remove member");
+      return;
+    }
+    await mutateWorkspaces();
+  };
+
+  const handleAddEmailAccount = async () => {
+    if (!activeWorkspace || !newAccountLabel.trim() || !newAccountEmail.trim())
+      return;
+    setSettingsStatus(null);
+    const response = await fetch(
+      `/api/workspaces/${activeWorkspace.id}/accounts`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newAccountLabel.trim(),
+          email: newAccountEmail.trim(),
+        }),
+      },
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      setSettingsStatus(data?.error || "Failed to connect email account");
+      return;
+    }
+    setNewAccountLabel("");
+    setNewAccountEmail("");
+    setActiveEmailAccount(data.account.email);
+    await mutateWorkspaces();
+  };
+
+  const handleRemoveEmailAccount = async (accountId: string) => {
+    if (!activeWorkspace) return;
+    setSettingsStatus(null);
+    const response = await fetch(
+      `/api/workspaces/${activeWorkspace.id}/accounts?accountId=${encodeURIComponent(
+        accountId,
+      )}`,
+      {
+        method: "DELETE",
+      },
+    );
+    if (!response.ok) {
+      const data = await response.json();
+      setSettingsStatus(data?.error || "Failed to remove email account");
+      return;
+    }
+    await mutateWorkspaces();
   };
 
   const returnTab = () => {
@@ -267,11 +494,41 @@ export function Mail({
               </div>
               <div className="flex flex-col space-y-2">
                 <Label>Name</Label>
-                <Input type="text" name="name" />
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="Acme Marketing"
+                  value={workspaceName}
+                  onChange={(e) => setWorkspaceName(e.target.value)}
+                />
               </div>
-              <div className="flex flex-col space-y-2">
-                <Label>Description</Label>
-                <Input type="text" name="description" />
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-2 flex flex-col space-y-2">
+                  <Label>Invite Teammate (optional)</Label>
+                  <Input
+                    type="email"
+                    name="inviteEmail"
+                    placeholder="teammate@company.com"
+                    value={initialInviteEmail}
+                    onChange={(e) => setInitialInviteEmail(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label>Role</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={initialInviteRole}
+                    onChange={(e) =>
+                      setInitialInviteRole(e.target.value as WorkspaceRole)
+                    }
+                  >
+                    {WORKSPACE_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -283,24 +540,8 @@ export function Mail({
                   Cancel
                 </Button>
                 <Button
-                  onClick={async () => {
-                    if (file) {
-                      setIsUploading(true);
-                      const res = await edgestore.publicFiles.upload({
-                        file,
-                        onProgressChange: (progress) => {
-                          // you can use this to show a progress bar
-                          console.log(progress);
-                        },
-                      });
-                      // you can run some server action or api here
-                      // to add the necessary data to your database
-                      console.log(res);
-                    }
-
-                    setIsUploading(false);
-                    setCreateWorkspaceOpen(false);
-                  }}
+                  disabled={isUploading || !workspaceName.trim()}
+                  onClick={handleCreateWorkspace}
                 >
                   {isUploading ? (
                     <>
@@ -318,6 +559,158 @@ export function Mail({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog
+          open={workspaceSettingsOpen}
+          onOpenChange={() => setWorkspaceSettingsOpen(!workspaceSettingsOpen)}
+        >
+          <DialogContent className="sm:max-w-[680px]">
+            <DialogHeader>
+              <DialogTitle className="pb-2 font-cal text-xl font-bold">
+                {activeWorkspace?.name || "Workspace"} — Team & Email Accounts
+              </DialogTitle>
+            </DialogHeader>
+            {settingsStatus && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                {settingsStatus}
+              </div>
+            )}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Team Members</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  <Input
+                    placeholder="Name (optional)"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                  />
+                  <Input
+                    placeholder="teammate@company.com"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                  />
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={inviteRole}
+                    onChange={(e) =>
+                      setInviteRole(e.target.value as WorkspaceRole)
+                    }
+                  >
+                    {WORKSPACE_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                  <Button onClick={handleInviteMember}>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Invite
+                  </Button>
+                </div>
+                <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-2">
+                  {(activeWorkspace?.membership || []).map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <div>
+                        <span className="font-medium">
+                          {member.user?.name ||
+                            member.invitedName ||
+                            member.user?.email ||
+                            member.invitedEmail}
+                        </span>
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {member.user?.email ||
+                            `${member.invitedEmail} (Pending)`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="h-8 rounded border bg-background px-2 text-xs"
+                          value={member.role}
+                          onChange={(e) =>
+                            handleRoleChange(
+                              member.id,
+                              e.target.value as WorkspaceRole,
+                            )
+                          }
+                        >
+                          {WORKSPACE_ROLES.map((role) => (
+                            <option key={role} value={role}>
+                              {role}
+                            </option>
+                          ))}
+                        </select>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMember(member.id)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">
+                  Connected Gmail / Google Workspace Accounts
+                </Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Input
+                    placeholder="Account label (e.g. Sales)"
+                    value={newAccountLabel}
+                    onChange={(e) => setNewAccountLabel(e.target.value)}
+                  />
+                  <Input
+                    placeholder="sales@company.com"
+                    type="email"
+                    value={newAccountEmail}
+                    onChange={(e) => setNewAccountEmail(e.target.value)}
+                  />
+                  <Button onClick={handleAddEmailAccount}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Account
+                  </Button>
+                </div>
+                <div className="max-h-36 space-y-2 overflow-y-auto rounded-md border p-2">
+                  {(activeWorkspace?.emailAccounts || []).map((acc) => (
+                    <div
+                      key={acc.id}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <div>
+                        <span className="font-medium">{acc.name}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {acc.email}
+                        </span>
+                        {activeEmailAccount === acc.email && (
+                          <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveEmailAccount(acc.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <div
           className={cn(
             isCollapsed &&
@@ -333,7 +726,10 @@ export function Mail({
               isCollapsed ? "h-[52px] flex-col" : "px-2",
             )}
           >
-            <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
+            <AccountSwitcher
+              isCollapsed={isCollapsed}
+              accounts={switcherAccounts}
+            />
           </div>
           <Separator />
           <div className="flex h-[calc(100vh-52px)] flex-col justify-between">
