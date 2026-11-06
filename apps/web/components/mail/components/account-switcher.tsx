@@ -10,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAtom } from "jotai";
+import { activeEmailAccountAtom } from "@/utils/store";
 
 interface AccountSwitcherProps {
   isCollapsed: boolean;
@@ -24,12 +26,28 @@ export function AccountSwitcher({
   isCollapsed,
   accounts,
 }: AccountSwitcherProps) {
-  const [selectedAccount, setSelectedAccount] = React.useState<string>(
-    accounts[0].email,
+  const [activeEmailAccount, setActiveEmailAccount] = useAtom(
+    activeEmailAccountAtom,
   );
 
+  const selectedAccount =
+    activeEmailAccount &&
+    accounts.some((account) => account.email === activeEmailAccount)
+      ? activeEmailAccount
+      : accounts[0]?.email || "";
+
+  React.useEffect(() => {
+    if (selectedAccount && selectedAccount !== activeEmailAccount) {
+      setActiveEmailAccount(selectedAccount);
+    }
+  }, [selectedAccount, activeEmailAccount, setActiveEmailAccount]);
+
+  if (accounts.length === 0) {
+    return null;
+  }
+
   return (
-    <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
+    <Select value={selectedAccount} onValueChange={setActiveEmailAccount}>
       <SelectTrigger
         className={cn(
           "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
