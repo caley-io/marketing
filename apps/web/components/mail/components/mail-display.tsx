@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/tooltip";
 import DOMPurify from "dompurify";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
+import { HtmlEmailViewer } from "@/components/mail/HtmlEmailViewer";
 import { cn } from "@/utils";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
@@ -431,21 +432,11 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                             addSuffix: true,
                           })}
                         </div>
-                        <iframe
+                        <HtmlEmailViewer
                           key={message.id}
-                          title={`Email Content ${index}`}
-                          srcDoc={createMarkup(message.text).__html}
-                          className="w-full rounded border-none"
-                          sandbox="allow-same-origin"
-                          onError={(e) =>
-                            console.error("Iframe load error:", e)
-                          }
-                          style={{
-                            width: "100%",
-                            minHeight: "100px", // initial minimum height
-                            fontFamily: "inherit !important",
-                          }}
-                        ></iframe>
+                          htmlContent={message.text}
+                          messageId={message.id || `msg-${index}`}
+                        />
                       </div>
                     ) : (
                       <>
@@ -475,16 +466,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             ) : (
               <>
                 {mail.messages[0].isHtmlEmail ? (
-                  <iframe
-                    title="Email Content"
-                    srcDoc={createMarkup(mail.messages[0].text).__html}
-                    className="h-full w-full border-none"
-                    sandbox="allow-same-origin"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      fontFamily: "inherit !important",
-                    }}
+                  <HtmlEmailViewer
+                    htmlContent={mail.messages[0].text}
+                    messageId={mail.messages[0].id || mail.id}
                   />
                 ) : (
                   <div
