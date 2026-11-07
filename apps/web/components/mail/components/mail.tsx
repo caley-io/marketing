@@ -12,6 +12,8 @@ import {
   Inbox as InboxIcon,
   Loader2,
   MessagesSquare,
+  List,
+  PlusCircle,
   Newspaper,
   Pencil,
   Plus,
@@ -42,6 +44,9 @@ import useSWR from "swr";
 import {
   configAtom,
   openComposeAtom,
+  customListsAtom,
+  openCreateListModalAtom,
+  openMoveToListModalAtom,
   openCreateWorkspaceOpenAtom,
   tabAtom,
   threadsAtom,
@@ -126,6 +131,8 @@ export function Mail({
   const [file, setFile] = React.useState<File | undefined>();
   const [isUploading, setIsUploading] = React.useState(false);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
+  const [customLists] = useAtom(customListsAtom);
+  const setOpenCreateList = useSetAtom(openCreateListModalAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
@@ -230,6 +237,53 @@ export function Mail({
             <div>Shopping</div>
           </ResizablePanel>
         );
+      default: {
+        const foundList = customLists.find((l) => `List: ${l.name}` === selectedTab || l.name === selectedTab);
+        if (foundList && stateThreadsData?.threads) {
+          const listThreads = stateThreadsData.threads.filter((t: any) => {
+            if (foundList.manualThreadIds && foundList.manualThreadIds.includes(t.id)) return true;
+            if (!foundList.rules || foundList.rules.length === 0) return false;
+            return foundList.rules.some((rule) => {
+              const val = rule.value.toLowerCase().trim();
+              if (!val) return false;
+              if (rule.type === 'sender') {
+                return (t.messages || []).some((m: any) =>
+                  (m.email || '').toLowerCase().includes(val) || (m.name || '').toLowerCase().includes(val)
+                );
+              }
+              if (rule.type === 'domain') {
+                const cleanDomain = val.startsWith('@') ? val.slice(1) : val;
+                return (t.messages || []).some((m: any) =>
+                  ((m.email || '').split('@')[1] || '').toLowerCase().includes(cleanDomain)
+                );
+              }
+              if (rule.type === 'subject') {
+                return (t.messages || []).some((m: any) => (m.subject || '').toLowerCase().includes(val));
+              }
+              if (rule.type === 'keyword') {
+                return (t.messages || []).some((m: any) =>
+                  (m.subject || '').toLowerCase().includes(val) || (m.snippet || '').toLowerCase().includes(val)
+                );
+              }
+              return false;
+            });
+          });
+
+          return (
+            <Inbox
+              data={{ ...stateThreadsData, threads: listThreads }}
+              isLoading={threadsLoading}
+              error={threadsError}
+              defaultLayout={defaultLayout}
+            />
+          );
+        }
+        return (
+          <ResizablePanel defaultSize={1095} className="h-screen">
+            <div>{selectedTab}</div>
+          </ResizablePanel>
+        );
+      }
     }
   };
 
@@ -386,6 +440,29 @@ export function Mail({
                     variant: "ghost",
                   },
                 ]}
+              />
+              <Separator />
+              <div className="px-4 py-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                <span>Lists</span>
+                <button
+                  type="button"
+                  onClick={() => setOpenCreateList(true)}
+                  className="hover:text-foreground p-0.5 rounded"
+                  title="Create new list"
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <Nav
+                isCollapsed={isCollapsed}
+                selectedTab={selectedTab}
+                setSelectedTab={setSelectedTab}
+                links={customLists.map((cl) => ({
+                  title: `List: ${cl.name}` as any,
+                  label: "",
+                  icon: List,
+                  variant: "ghost",
+                }))}
               />
               <Separator />
               <Nav

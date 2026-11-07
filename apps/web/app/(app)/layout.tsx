@@ -9,6 +9,8 @@ import { CommandK } from "@/components/CommandK";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ComposeDialog } from "./compose/ComposeDialog";
+import { CreateListDialog } from "@/components/mail/components/CreateListDialog";
+import { MoveToListDialog } from "@/components/mail/components/MoveToListDialog";
 
 export default async function AppLayout({
   children,
@@ -32,6 +34,8 @@ export default async function AppLayout({
         <CommandK />
         <Toaster />
         <ComposeDialog />
+        <CreateListDialog />
+        <MoveToListDialog />
         {children}
       </ThemeProvider>
     </Providers>

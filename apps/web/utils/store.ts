@@ -2,6 +2,7 @@ import { mails } from "@/components/mail/data";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { atom, useAtom } from "jotai";
 import { LucideIcon } from "lucide-react";
+import { CustomEmailList, defaultCustomLists } from "@/utils/emailLists";
 
 type Config = {
   mail: GMailThread | null;
@@ -29,7 +30,8 @@ export type Tabs =
   | "Sent"
   | "Drafts"
   | "Trash"
-  | "Archive";
+  | "Archive"
+  | (string & {});
 
 export const configAtom = atom<Config>({
   mail: null,
@@ -47,3 +49,9 @@ export const openComposeAtom = atom<boolean>(false);
 export const threadsAtom = atom<any>(null);
 
 export const openCreateWorkspaceOpenAtom = atom<boolean>(false);
+
+export const customListsAtom = atom<CustomEmailList[]>(defaultCustomLists);
+
+export const openCreateListModalAtom = atom<boolean>(false);
+
+export const openMoveToListModalAtom = atom<boolean>(false);
