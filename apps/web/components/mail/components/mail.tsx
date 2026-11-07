@@ -50,6 +50,7 @@ import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
+import { CalendarView } from "@/components/mail/components/CalendarView";
 import { Button, ButtonLoader } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
@@ -216,14 +217,7 @@ export function Mail({
           />
         );
       case "Calendar":
-        return (
-          <Inbox
-            data={calendarEmailsData}
-            isLoading={calendarEmailsLoading}
-            error={calendarEmailsError}
-            defaultLayout={defaultLayout}
-          />
-        );
+        return <CalendarView defaultLayout={defaultLayout} />;
       case "VIP":
         return (
           <ResizablePanel defaultSize={1095} className="h-screen">

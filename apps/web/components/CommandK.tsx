@@ -50,6 +50,7 @@ import {
   focusedIndexAtom,
   focusedThreadAtom,
   openComposeAtom,
+  calendarSidebarOpenAtom,
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
@@ -280,6 +281,7 @@ export function CommandK() {
   const [open, setOpen] = React.useState(false);
   const [lastKeyPressed, setLastKeyPressed] = React.useState("");
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
+  const [calendarOpen, setCalendarOpen] = useAtom(calendarSidebarOpenAtom);
   const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
   const focusedIndex = useAtomValue(focusedIndexAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
@@ -317,6 +319,13 @@ export function CommandK() {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
+        return;
+      }
+
+      // Toggle calendar with Shift+C or key 'C'
+      if (e.key === "C" && e.shiftKey) {
+        e.preventDefault();
+        setCalendarOpen((prev) => !prev);
         return;
       }
 
@@ -465,6 +474,7 @@ export function CommandK() {
     focusedThread,
     composeOpen,
     setComposeOpen,
+    setCalendarOpen,
   ]);
 
   return (
