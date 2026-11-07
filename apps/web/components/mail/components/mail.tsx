@@ -18,6 +18,7 @@ import {
   Send,
   ShoppingCart,
   Star,
+  Sun,
   Trash2,
   Users2,
 } from "lucide-react";
@@ -50,6 +51,7 @@ import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
+import { TodayView } from "./today-view";
 import { Button, ButtonLoader } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
@@ -151,6 +153,15 @@ export function Mail({
 
   const returnTab = () => {
     switch (selectedTab) {
+      case "Today":
+        return (
+          <TodayView
+            threadsData={stateThreadsData || threadsData}
+            calendarData={calendarEmailsData}
+            doneData={doneEmailsData}
+            isLoading={threadsLoading}
+          />
+        );
       case "Inbox":
         return (
           <Inbox
@@ -343,6 +354,12 @@ export function Mail({
                 selectedTab={selectedTab}
                 setSelectedTab={setSelectedTab}
                 links={[
+                  {
+                    title: "Today",
+                    label: "",
+                    icon: Sun,
+                    variant: "default",
+                  },
                   {
                     title: "Inbox",
                     label: threadsData?.threads.length || "0",
