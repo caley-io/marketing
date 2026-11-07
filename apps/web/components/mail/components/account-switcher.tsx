@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getNavbarDisplayMode } from "@/utils/resizableNavbar";
 
 interface AccountSwitcherProps {
   isCollapsed: boolean;
@@ -25,12 +26,18 @@ export function AccountSwitcher({
   accounts,
 }: AccountSwitcherProps) {
   const [selectedAccount, setSelectedAccount] = React.useState<string>(
-    accounts[0].email,
+    accounts[0]?.email ?? "",
   );
+
+  const activeAccount =
+    accounts.find((account) => account.email === selectedAccount) ??
+    accounts[0];
+  const displayMode = getNavbarDisplayMode(isCollapsed);
 
   return (
     <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
       <SelectTrigger
+        data-mode={displayMode}
         className={cn(
           "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
           isCollapsed &&
@@ -39,13 +46,10 @@ export function AccountSwitcher({
         aria-label="Select account"
       >
         <SelectValue placeholder="Select an account">
-          {accounts.find((account) => account.email === selectedAccount)?.icon}
-          <span className={cn("ml-2", isCollapsed && "hidden")}>
-            {
-              accounts.find((account) => account.email === selectedAccount)
-                ?.label
-            }
-          </span>
+          {activeAccount?.icon}
+          {!isCollapsed && (
+            <span className="ml-2 truncate">{activeAccount?.label}</span>
+          )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
