@@ -2,6 +2,7 @@ import { mails } from "@/components/mail/data";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { atom, useAtom } from "jotai";
 import { LucideIcon } from "lucide-react";
+import { CalendarEvent, getDefaultMultiAccountEvents } from "@/utils/calendar";
 
 type Config = {
   mail: GMailThread | null;
@@ -47,3 +48,9 @@ export const openComposeAtom = atom<boolean>(false);
 export const threadsAtom = atom<any>(null);
 
 export const openCreateWorkspaceOpenAtom = atom<boolean>(false);
+
+export const calendarSidebarOpenAtom = atom<boolean>(false);
+
+export const calendarTargetDateAtom = atom<string | null>(null);
+
+export const calendarEventsAtom = atom<CalendarEvent[]>(getDefaultMultiAccountEvents());
