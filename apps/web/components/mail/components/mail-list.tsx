@@ -144,6 +144,12 @@ export function MailList({ items }: MailListProps) {
             <div className="line-clamp-2 text-xs text-muted-foreground">
               {item.messages[0].snippet}
             </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {item.accountEmail && (
+                <Badge variant="secondary" className="text-[10px] py-0 px-1.5 font-normal bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                  {item.accountLabel || item.accountEmail}
+                </Badge>
+              )}
             {item.messages[0].labels.length ? (
               <div className="flex items-center gap-2">
                 {item.messages[0].labels
@@ -162,6 +168,7 @@ export function MailList({ items }: MailListProps) {
                   ))}
               </div>
             ) : null}
+            </div>
           </button>
         ))}
       </div>

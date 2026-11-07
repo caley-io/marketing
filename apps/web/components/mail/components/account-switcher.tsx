@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-
 import { cn } from "@/utils";
 import {
   Select,
@@ -10,6 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAtom } from "jotai";
+import { selectedAccountEmailAtom } from "@/utils/store";
+import { Layers } from "lucide-react";
 
 interface AccountSwitcherProps {
   isCollapsed: boolean;
@@ -24,12 +26,20 @@ export function AccountSwitcher({
   isCollapsed,
   accounts,
 }: AccountSwitcherProps) {
-  const [selectedAccount, setSelectedAccount] = React.useState<string>(
-    accounts[0].email,
+  const [selectedAccount, setSelectedAccount] = useAtom(
+    selectedAccountEmailAtom,
   );
 
+  const selectedItem =
+    selectedAccount === "all"
+      ? null
+      : accounts.find((account) => account.email === selectedAccount);
+
   return (
-    <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
+    <Select
+      value={selectedAccount}
+      onValueChange={(val) => setSelectedAccount(val)}
+    >
       <SelectTrigger
         className={cn(
           "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
@@ -39,16 +49,25 @@ export function AccountSwitcher({
         aria-label="Select account"
       >
         <SelectValue placeholder="Select an account">
-          {accounts.find((account) => account.email === selectedAccount)?.icon}
+          {selectedAccount === "all" ? (
+            <Layers className="h-4 w-4 text-sky-500" />
+          ) : (
+            selectedItem?.icon
+          )}
           <span className={cn("ml-2", isCollapsed && "hidden")}>
-            {
-              accounts.find((account) => account.email === selectedAccount)
-                ?.label
-            }
+            {selectedAccount === "all"
+              ? "All Accounts"
+              : selectedItem?.label || selectedAccount}
           </span>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value="all">
+          <div className="flex items-center gap-3 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 font-medium text-sky-600 dark:text-sky-400">
+            <Layers className="h-4 w-4" />
+            All Accounts (Full Search)
+          </div>
+        </SelectItem>
         {accounts.map((account) => (
           <SelectItem key={account.email} value={account.email}>
             <div className="flex items-center gap-3 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-foreground">
