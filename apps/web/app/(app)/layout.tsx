@@ -9,6 +9,7 @@ import { CommandK } from "@/components/CommandK";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ComposeDialog } from "./compose/ComposeDialog";
+import { AskAiDialog } from "@/components/mail/components/AskAiDialog";
 
 export default async function AppLayout({
   children,
@@ -32,6 +33,7 @@ export default async function AppLayout({
         <CommandK />
         <Toaster />
         <ComposeDialog />
+        <AskAiDialog />
         {children}
       </ThemeProvider>
     </Providers>
