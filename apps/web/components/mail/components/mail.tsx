@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import {
-  AlertCircle,
   Archive,
   ArchiveX,
   Building,
@@ -11,16 +10,14 @@ import {
   Gauge,
   Inbox as InboxIcon,
   Loader2,
-  MessagesSquare,
   Newspaper,
   Pencil,
   Plus,
   Send,
-  ShoppingCart,
   Star,
   Trash2,
-  Users2,
 } from "lucide-react";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 
 import { AccountSwitcher } from "./account-switcher";
 import { Nav } from "./nav";
@@ -37,7 +34,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import useSWR from "swr";
 import {
   configAtom,
@@ -46,11 +43,10 @@ import {
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
-import { ProfileDropdown } from "@/components/TopNav";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
-import { Button, ButtonLoader } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { WorkspaceSidebar } from "./workspace-sidebar";
 import {
   Dialog,
@@ -58,12 +54,21 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SingleImageDropzone } from "@/components/ui/single-image-dropzone";
 import { useEdgeStore } from "@/utils/edgestore";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import {
+  DEFAULT_NAV_COLLAPSED_SIZE,
+  DEFAULT_NAV_MAX_SIZE,
+  DEFAULT_NAV_MIN_SIZE,
+  formatCollapsedCookie,
+  formatLayoutCookie,
+  getNavbarDisplayMode,
+  resolveNavbarResizeState,
+} from "@/utils/resizableNavbar";
 
 interface MailProps {
   accounts: {
@@ -78,9 +83,9 @@ interface MailProps {
 
 export function Mail({
   accounts,
-  defaultLayout = [225, 440, 655],
+  defaultLayout = [20, 40, 40],
   defaultCollapsed = false,
-  navCollapsedSize,
+  navCollapsedSize = DEFAULT_NAV_COLLAPSED_SIZE,
 }: MailProps) {
   const {
     data: threadsData,
@@ -122,11 +127,12 @@ export function Mail({
     keepPreviousData: true,
   });
 
+  const navPanelRef = React.useRef<ImperativePanelHandle | null>(null);
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [file, setFile] = React.useState<File | undefined>();
   const [isUploading, setIsUploading] = React.useState(false);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
-  const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const [, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
@@ -134,7 +140,7 @@ export function Mail({
 
   const { edgestore } = useEdgeStore();
 
-  const mail = useAtomValue(configAtom);
+  useAtomValue(configAtom);
 
   React.useEffect(() => {
     if (threadsData) {
@@ -142,12 +148,20 @@ export function Mail({
     }
   }, [threadsData, setStateThreadsData]);
 
-  const handleOnCollapse = () => {
-    document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-      !isCollapsed,
-    )}`;
-    setIsCollapsed(!isCollapsed);
-  };
+  const handleSetCollapsed = React.useCallback((nextCollapsed: boolean) => {
+    setIsCollapsed(nextCollapsed);
+    document.cookie = formatCollapsedCookie(nextCollapsed);
+  }, []);
+
+  const handleOnCollapse = React.useCallback(() => {
+    const nextCollapsed = !isCollapsed;
+    if (nextCollapsed) {
+      navPanelRef.current?.collapse();
+    } else {
+      navPanelRef.current?.expand();
+    }
+    handleSetCollapsed(nextCollapsed);
+  }, [handleSetCollapsed, isCollapsed]);
 
   const returnTab = () => {
     switch (selectedTab) {
@@ -238,9 +252,7 @@ export function Mail({
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
-          document.cookie = `react-resizable-panels:layout=${JSON.stringify(
-            sizes,
-          )}`;
+          document.cookie = formatLayoutCookie(sizes);
         }}
       >
         <WorkspaceSidebar />
@@ -289,12 +301,9 @@ export function Mail({
                       const res = await edgestore.publicFiles.upload({
                         file,
                         onProgressChange: (progress) => {
-                          // you can use this to show a progress bar
                           console.log(progress);
                         },
                       });
-                      // you can run some server action or api here
-                      // to add the necessary data to your database
                       console.log(res);
                     }
 
@@ -318,13 +327,32 @@ export function Mail({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <div
+        <ResizablePanel
+          ref={navPanelRef}
+          defaultSize={defaultLayout[0]}
+          collapsedSize={navCollapsedSize}
+          collapsible={true}
+          minSize={DEFAULT_NAV_MIN_SIZE}
+          maxSize={DEFAULT_NAV_MAX_SIZE}
+          onCollapse={() => handleSetCollapsed(true)}
+          onExpand={() => handleSetCollapsed(false)}
+          onResize={(size: number) => {
+            const next = resolveNavbarResizeState(
+              size,
+              navCollapsedSize,
+              DEFAULT_NAV_MIN_SIZE,
+            );
+            if (next.isCollapsed !== isCollapsed) {
+              handleSetCollapsed(next.isCollapsed);
+            }
+          }}
+          data-mode={getNavbarDisplayMode(isCollapsed)}
           className={cn(
             isCollapsed &&
               "min-w-[50px] transition-all duration-300 ease-in-out",
             !isCollapsed &&
-              "min-w-[300px] transition-all duration-300 ease-in-out",
-            "relative border-r",
+              "min-w-[220px] transition-all duration-300 ease-in-out",
+            "relative",
           )}
         >
           <div
@@ -469,7 +497,7 @@ export function Mail({
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-0 right-0 translate-x-8 p-4">
+            <div className="absolute bottom-0 right-0 z-20 translate-x-4 p-4">
               <div
                 className="cursor-pointer rounded-xl border bg-background p-2"
                 onClick={(e) => {
@@ -485,7 +513,8 @@ export function Mail({
               </div>
             </div>
           </div>
-        </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
         {returnTab()}
       </ResizablePanelGroup>
     </TooltipProvider>
