@@ -21,6 +21,7 @@ export const maxDuration = 30;
 const threadsQuery = z.object({
   fromEmail: z.string().nullish(),
   limit: z.coerce.number().max(100).nullish(),
+  pageToken: z.string().nullish(),
   includeAll: z.coerce.boolean().nullish(),
   isDone: z.coerce.boolean().nullish(),
   isTeam: z.coerce.boolean().nullish(),
@@ -81,6 +82,7 @@ async function getThreads(query: ThreadsQuery) {
       userId: "me",
       labelIds: buildLabelIds(),
       maxResults: query.limit || 50,
+      pageToken: query.pageToken || undefined,
       q: query.isTeam || query.isCalendar ? buildQuery() : undefined,
     }),
     prisma.rule.findMany({ where: { userId: session.user.id } }),
@@ -122,12 +124,17 @@ async function getThreads(query: ThreadsQuery) {
     }) || [],
   );
 
-  return { threads: threadsWithMessages };
+  return {
+    threads: threadsWithMessages,
+    nextPageToken: gmailThreads.data.nextPageToken || null,
+    resultSizeEstimate: gmailThreads.data.resultSizeEstimate || threadsWithMessages.length,
+  };
 }
 
 export const GET = withError(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit");
+  const pageToken = searchParams.get("pageToken");
   const fromEmail = searchParams.get("fromEmail");
   const includeAll = searchParams.get("includeAll");
   const isDone = searchParams.get("isDone");
@@ -136,6 +143,7 @@ export const GET = withError(async (request: Request) => {
   const isSent = searchParams.get("isSent");
   const query = threadsQuery.parse({
     limit,
+    pageToken,
     fromEmail,
     includeAll,
     isDone,
