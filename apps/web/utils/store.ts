@@ -2,6 +2,11 @@ import { mails } from "@/components/mail/data";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
 import { atom, useAtom } from "jotai";
 import { LucideIcon } from "lucide-react";
+import {
+  EmailAssignment,
+  TeamMember,
+  defaultTeamMembers,
+} from "@/utils/emailAssignment";
 
 type Config = {
   mail: GMailThread | null;
@@ -24,10 +29,10 @@ export type Tabs =
   | "Junk"
   | "Done"
   | "Team"
+  | "Assigned to me"
   | "Calendar"
   | "VIP"
   | "Sent"
-  | "Drafts"
   | "Trash"
   | "Archive";
 
@@ -47,3 +52,7 @@ export const openComposeAtom = atom<boolean>(false);
 export const threadsAtom = atom<any>(null);
 
 export const openCreateWorkspaceOpenAtom = atom<boolean>(false);
+
+export const emailAssignmentsAtom = atom<Record<string, EmailAssignment>>({});
+
+export const teamMembersAtom = atom<TeamMember[]>(defaultTeamMembers);

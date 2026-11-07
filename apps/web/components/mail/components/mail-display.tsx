@@ -12,6 +12,8 @@ import {
   Reply,
   ReplyAll,
   Trash2,
+  UserPlus,
+  UserCheck,
 } from "lucide-react";
 
 import {
@@ -41,6 +43,9 @@ import {
 } from "@/components/ui/tooltip";
 import DOMPurify from "dompurify";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
+import { AssignMemberDialog } from "./AssignMemberDialog";
+import { emailAssignmentsAtom } from "@/utils/store";
+import { useAtomValue } from "jotai";
 import { cn } from "@/utils";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
@@ -133,6 +138,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
 
   const [messageText, setMessageText] = useState("");
   const [isReplying, setIsReplying] = useState(false);
+  const assignments = useAtomValue(emailAssignmentsAtom);
+  const currentAssignment = mail?.id ? assignments[mail.id] : null;
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   useEffect(() => {
     const iframes = document.querySelectorAll("iframe");
@@ -317,6 +325,33 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           </Tooltip>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={currentAssignment ? "secondary" : "ghost"}
+                size="icon"
+                disabled={!mail}
+                onClick={() => setAssignDialogOpen(true)}
+                title={
+                  currentAssignment
+                    ? `Assigned to ${currentAssignment.assignee.name}`
+                    : "Assign to teammate"
+                }
+              >
+                {currentAssignment ? (
+                  <UserCheck className="h-4 w-4 text-primary" />
+                ) : (
+                  <UserPlus className="h-4 w-4" />
+                )}
+                <span className="sr-only">Assign</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {currentAssignment
+                ? `Assigned to ${currentAssignment.assignee.name}`
+                : "Assign to teammate"}
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" disabled={!mail}>
