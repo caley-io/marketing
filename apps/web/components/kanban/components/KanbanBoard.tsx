@@ -1,7 +1,7 @@
 "use client";
 import { PlusIcon } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Column, Id, Task, defaultCols, defaultTasks } from "../data";
+import { useEffect, useMemo, useState } from "react";
+import { Column, Id, Task } from "../data";
 import * as Portal from "@radix-ui/react-portal";
 import ColumnContainer from "./ColumnContainer";
 import {
@@ -14,18 +14,70 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { SortableContext, arrayMove } from "@dnd-kit/sortable";
+import { SortableContext } from "@dnd-kit/sortable";
+import { useAtomValue } from "jotai";
+import { threadsAtom } from "@/utils/store";
+import {
+  EmailThreadInput,
+  addKanbanColumn,
+  deleteKanbanColumn,
+  loadKanbanStateFromStorage,
+  mapThreadsToKanbanCards,
+  moveEmailCardToColumn,
+  renameKanbanColumn,
+  reorderKanbanColumns,
+  saveKanbanStateToStorage,
+  syncCardLabelsWithColumn,
+} from "@/utils/emailKanban";
 
 import TaskCard from "./TaskCard";
 
-function KanbanBoard() {
-  const [columns, setColumns] = useState<Column[]>(defaultCols);
+interface KanbanBoardProps {
+  threads?: EmailThreadInput[];
+}
+
+function KanbanBoard({ threads: propThreads }: KanbanBoardProps) {
+  const storeThreadsData = useAtomValue(threadsAtom);
+  const resolvedThreads: EmailThreadInput[] = useMemo(() => {
+    if (Array.isArray(propThreads)) return propThreads;
+    if (Array.isArray(storeThreadsData?.threads)) {
+      return storeThreadsData.threads;
+    }
+    return [];
+  }, [propThreads, storeThreadsData]);
+
+  const initialPersisted = useMemo(() => loadKanbanStateFromStorage(), []);
+
+  const [columns, setColumns] = useState<Column[]>(initialPersisted.columns);
+  const [assignments, setAssignments] = useState<Record<string, Id>>(
+    initialPersisted.assignments,
+  );
   const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
 
-  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
+  const [tasks, setTasks] = useState<Task[]>(() =>
+    mapThreadsToKanbanCards(
+      resolvedThreads,
+      initialPersisted.columns,
+      initialPersisted.assignments,
+    ),
+  );
+
+  useEffect(() => {
+    setTasks(mapThreadsToKanbanCards(resolvedThreads, columns, assignments));
+  }, [resolvedThreads, columns, assignments]);
+
+  useEffect(() => {
+    saveKanbanStateToStorage({ columns, assignments });
+    fetch("/api/mail/kanban", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ columns, assignments }),
+    }).catch(() => {
+      // Ignore network sync errors when offline
+    });
+  }, [columns, assignments]);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
-
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
@@ -37,15 +89,7 @@ function KanbanBoard() {
   );
 
   return (
-    <div
-      className="flex
-        min-h-screen
-        w-full
-        items-center
-        overflow-x-auto
-        overflow-y-hidden
-    "
-    >
+    <div className="flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden">
       <DndContext
         sensors={sensors}
         onDragStart={onDragStart}
@@ -108,53 +152,60 @@ function KanbanBoard() {
   );
 
   function createTask(columnId: Id) {
+    const newId = String(generateId());
     const newTask: Task = {
-      id: generateId(),
+      id: newId,
       columnId,
-      content: `Task ${tasks.length + 1}`,
+      content: `Email ${tasks.length + 1}`,
+      senderName: "Draft",
+      subject: `Email ${tasks.length + 1}`,
+      snippet: "",
+      date: new Date().toISOString(),
+      read: true,
+      labels: syncCardLabelsWithColumn([], columns, columnId),
     };
 
     setTasks([...tasks, newTask]);
   }
 
   function deleteTask(id: Id) {
-    const newTasks = tasks.filter((task) => task.id !== id);
+    const newTasks = tasks.filter((task) => task.id !== String(id));
     setTasks(newTasks);
   }
 
   function updateTask(id: Id, content: string) {
     const newTasks = tasks.map((task) => {
-      if (task.id !== id) return task;
-      return { ...task, content };
+      if (task.id !== String(id)) return task;
+      return { ...task, content, subject: content };
     });
 
     setTasks(newTasks);
   }
 
   function createNewColumn() {
-    const columnToAdd: Column = {
-      id: generateId(),
-      title: `Column ${columns.length + 1}`,
-    };
-
-    setColumns([...columns, columnToAdd]);
+    setColumns((prev) => addKanbanColumn(prev));
   }
 
   function deleteColumn(id: Id) {
-    const filteredColumns = columns.filter((col) => col.id !== id);
-    setColumns(filteredColumns);
-
-    const newTasks = tasks.filter((t) => t.columnId !== id);
-    setTasks(newTasks);
+    const result = deleteKanbanColumn(columns, tasks, assignments, id);
+    setColumns(result.columns);
+    setTasks(result.cards);
+    setAssignments(result.assignments);
   }
 
   function updateColumn(id: Id, title: string) {
-    const newColumns = columns.map((col) => {
-      if (col.id !== id) return col;
-      return { ...col, title };
-    });
-
-    setColumns(newColumns);
+    const nextCols = renameKanbanColumn(columns, id, title);
+    setColumns(nextCols);
+    setTasks((prev) =>
+      prev.map((card) =>
+        card.columnId === id
+          ? {
+              ...card,
+              labels: syncCardLabelsWithColumn(card.labels, nextCols, id),
+            }
+          : card,
+      ),
+    );
   }
 
   function onDragStart(event: DragStartEvent) {
@@ -184,14 +235,10 @@ function KanbanBoard() {
     const isActiveAColumn = active.data.current?.type === "Column";
     if (!isActiveAColumn) return;
 
-    console.log("DRAG END");
-
-    setColumns((columns) => {
-      const activeColumnIndex = columns.findIndex((col) => col.id === activeId);
-
-      const overColumnIndex = columns.findIndex((col) => col.id === overId);
-
-      return arrayMove(columns, activeColumnIndex, overColumnIndex);
+    setColumns((prev) => {
+      const activeColumnIndex = prev.findIndex((col) => col.id === activeId);
+      const overColumnIndex = prev.findIndex((col) => col.id === overId);
+      return reorderKanbanColumns(prev, activeColumnIndex, overColumnIndex);
     });
   }
 
@@ -209,39 +256,41 @@ function KanbanBoard() {
 
     if (!isActiveATask) return;
 
-    // Im dropping a Task over another Task
     if (isActiveATask && isOverATask) {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === activeId);
-        const overIndex = tasks.findIndex((t) => t.id === overId);
+      const overTask = tasks.find((t) => t.id === String(overId));
+      const overIndex = tasks.findIndex((t) => t.id === String(overId));
+      if (!overTask) return;
 
-        if (tasks[activeIndex].columnId != tasks[overIndex].columnId) {
-          // Fix introduced after video recording
-          tasks[activeIndex].columnId = tasks[overIndex].columnId;
-          return arrayMove(tasks, activeIndex, overIndex - 1);
-        }
-
-        return arrayMove(tasks, activeIndex, overIndex);
-      });
+      const moved = moveEmailCardToColumn(
+        tasks,
+        columns,
+        assignments,
+        activeId,
+        overTask.columnId,
+        overIndex,
+      );
+      setTasks(moved.cards);
+      setAssignments(moved.assignments);
+      return;
     }
 
     const isOverAColumn = over.data.current?.type === "Column";
 
-    // Im dropping a Task over a column
     if (isActiveATask && isOverAColumn) {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === activeId);
-
-        tasks[activeIndex].columnId = overId;
-        console.log("DROPPING TASK OVER COLUMN", { activeIndex });
-        return arrayMove(tasks, activeIndex, activeIndex);
-      });
+      const moved = moveEmailCardToColumn(
+        tasks,
+        columns,
+        assignments,
+        activeId,
+        overId,
+      );
+      setTasks(moved.cards);
+      setAssignments(moved.assignments);
     }
   }
 }
 
 function generateId() {
-  /* Generate a random number between 0 and 10000 */
   return Math.floor(Math.random() * 10001);
 }
 
