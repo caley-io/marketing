@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtom } from "jotai";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
-import { configAtom, focusedIndexAtom, focusedThreadAtom } from "@/utils/store";
+import { configAtom, focusedIndexAtom, focusedThreadAtom, emailAssignmentsAtom } from "@/utils/store";
+import { useAtomValue } from "jotai";
 import { set } from "lodash";
 import { postRequest } from "@/utils/api";
 import useSWR, { useSWRConfig } from "swr";
@@ -24,6 +25,7 @@ export function MailList({ items }: MailListProps) {
   const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { mutate } = useSWR("api/google/threads", fetcher);
+  const assignments = useAtomValue(emailAssignmentsAtom);
 
   useEffect(() => {
     itemRefs.current = itemRefs.current.slice(0, items.length);
@@ -144,6 +146,14 @@ export function MailList({ items }: MailListProps) {
             <div className="line-clamp-2 text-xs text-muted-foreground">
               {item.messages[0].snippet}
             </div>
+            {assignments[item.id] && (
+              <div className="flex items-center gap-1.5 pt-1">
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-medium border border-primary/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  {assignments[item.id].assignee.name}
+                </span>
+              </div>
+            )}
             {item.messages[0].labels.length ? (
               <div className="flex items-center gap-2">
                 {item.messages[0].labels

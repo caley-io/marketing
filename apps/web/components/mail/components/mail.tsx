@@ -20,6 +20,7 @@ import {
   Star,
   Trash2,
   Users2,
+  UserCheck,
 } from "lucide-react";
 
 import { AccountSwitcher } from "./account-switcher";
@@ -47,6 +48,8 @@ import {
   threadsAtom,
 } from "@/utils/store";
 import { ProfileDropdown } from "@/components/TopNav";
+import { filterThreadsByAssignee } from "@/utils/emailAssignment";
+import { useSession } from "next-auth/react";
 import { Inbox } from "@/components/mail/components/inbox";
 import { Newsletters } from "@/components/mail/components/newsletters";
 import { MailStats } from "@/components/mail/components/mail-stats";
@@ -126,6 +129,13 @@ export function Mail({
   const [file, setFile] = React.useState<File | undefined>();
   const [isUploading, setIsUploading] = React.useState(false);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
+  const session = useSession();
+  const [assignments] = useAtom(emailAssignmentsAtom);
+  const userEmail = session?.data?.user?.email || "jeremy@caley.io";
+  const assignedThreads = React.useMemo(() => {
+    if (!stateThreadsData?.threads) return [];
+    return filterThreadsByAssignee(stateThreadsData.threads, assignments, userEmail);
+  }, [stateThreadsData, assignments, userEmail]);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
@@ -203,6 +213,15 @@ export function Mail({
             data={doneEmailsData}
             isLoading={doneEmailsLoading}
             error={doneEmailsError}
+            defaultLayout={defaultLayout}
+          />
+        );
+      case "Assigned to me":
+        return (
+          <Inbox
+            data={{ threads: assignedThreads }}
+            isLoading={threadsLoading}
+            error={threadsError}
             defaultLayout={defaultLayout}
           />
         );
