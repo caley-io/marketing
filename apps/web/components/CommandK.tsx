@@ -50,6 +50,8 @@ import {
   focusedIndexAtom,
   focusedThreadAtom,
   openComposeAtom,
+  customListsAtom,
+  openMoveToListModalAtom,
   tabAtom,
   threadsAtom,
 } from "@/utils/store";
@@ -280,6 +282,8 @@ export function CommandK() {
   const [open, setOpen] = React.useState(false);
   const [lastKeyPressed, setLastKeyPressed] = React.useState("");
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
+  const [customLists] = useAtom(customListsAtom);
+  const setOpenMoveToList = useSetAtom(openMoveToListModalAtom);
   const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
   const focusedIndex = useAtomValue(focusedIndexAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
@@ -318,6 +322,32 @@ export function CommandK() {
         e.preventDefault();
         setOpen((open) => !open);
         return;
+      }
+
+      if (e.key === "l" && !e.metaKey && !e.ctrlKey) {
+        // Move current email to a list
+        if (focusedThread?.id) {
+          e.preventDefault();
+          setOpenMoveToList(true);
+          return;
+        }
+      }
+
+      if (e.key === "[" || e.key === "]") {
+        // Navigate through custom lists
+        if (customLists && customLists.length > 0) {
+          e.preventDefault();
+          const listTabNames = customLists.map((l) => `List: ${l.name}`);
+          const currentIdx = listTabNames.indexOf(selectedTab);
+          let nextIdx = 0;
+          if (e.key === "]") {
+            nextIdx = currentIdx < listTabNames.length - 1 ? currentIdx + 1 : 0;
+          } else {
+            nextIdx = currentIdx > 0 ? currentIdx - 1 : listTabNames.length - 1;
+          }
+          setSelectedTab(listTabNames[nextIdx] as any);
+          return;
+        }
       }
 
       setLastKeyPressed(e.key);
@@ -465,6 +495,9 @@ export function CommandK() {
     focusedThread,
     composeOpen,
     setComposeOpen,
+    customLists,
+    setOpenMoveToList,
+    selectedTab,
   ]);
 
   return (
