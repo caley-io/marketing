@@ -1,6 +1,6 @@
-import { mails } from "@/components/mail/data";
-import { GMailMessage, GMailThread } from "@/utils/gmail/types";
-import { atom, useAtom } from "jotai";
+import { GMailThread } from "@/app/api/google/threads/route";
+import { type WorkspaceRecord } from "@/utils/workspace";
+import { atom } from "jotai";
 import { LucideIcon } from "lucide-react";
 
 type Config = {
@@ -47,3 +47,23 @@ export const openComposeAtom = atom<boolean>(false);
 export const threadsAtom = atom<any>(null);
 
 export const openCreateWorkspaceOpenAtom = atom<boolean>(false);
+
+// Tracks the currently selected multitenant workspace ID across the mail shell.
+export const activeWorkspaceIdAtom = atom<string | null>(null);
+
+// Holds the list of workspaces accessible to the signed-in user.
+export const workspacesAtom = atom<WorkspaceRecord[]>([]);
+
+// Resolves the currently active workspace record from the loaded workspace list,
+// falling back to the primary workspace when no explicit selection exists.
+export function selectActiveWorkspace(
+  workspaces: WorkspaceRecord[],
+  activeWorkspaceId: string | null,
+): WorkspaceRecord | null {
+  if (workspaces.length === 0) return null;
+  if (!activeWorkspaceId) return workspaces[0];
+  return (
+    workspaces.find((ws) => ws.id === activeWorkspaceId) ?? workspaces[0]
+  );
+}
+
