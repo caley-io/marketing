@@ -5,10 +5,13 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import { cn } from "@/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowDown, Loader2 } from "lucide-react";
+import { reconcileEmailThreads } from "@/utils/emailPagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAtom } from "jotai";
 import { GMailMessage, GMailThread } from "@/utils/gmail/types";
-import { configAtom, focusedIndexAtom, focusedThreadAtom } from "@/utils/store";
+import { configAtom, focusedIndexAtom, focusedThreadAtom, threadsAtom } from "@/utils/store";
 import { set } from "lodash";
 import { postRequest } from "@/utils/api";
 import useSWR, { useSWRConfig } from "swr";
@@ -22,6 +25,41 @@ export function MailList({ items }: MailListProps) {
   const [mail, setMail] = useAtom(configAtom);
   const [focusedIndex, setFocusedIndex] = useAtom(focusedIndexAtom);
   const [focusedThread, setFocusedThread] = useAtom(focusedThreadAtom);
+  const [threadsData, setThreadsData] = useAtom(threadsAtom);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const handleFetchMore = async () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+
+    try {
+      const res = await fetch(`/api/mail/more?limit=50&offset=${items.length}`);
+      if (res.ok) {
+        const data = await res.json();
+        const incoming = data.threads || [];
+        if (incoming.length === 0) {
+          setHasMore(false);
+        } else {
+          const { reconciled } = reconcileEmailThreads(
+            threadsData?.threads || items,
+            incoming,
+          );
+          setThreadsData({
+            ...(threadsData || {}),
+            threads: reconciled,
+          });
+          if (data.hasMore !== undefined) {
+            setHasMore(data.hasMore);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch more emails:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { mutate } = useSWR("api/google/threads", fetcher);
 
@@ -164,6 +202,34 @@ export function MailList({ items }: MailListProps) {
             ) : null}
           </button>
         ))}
+
+        {/* Load More Emails Footer & Reconciliation */}
+        <div className="p-4 border-t flex flex-col items-center justify-center gap-2 bg-muted/10">
+          <span className="text-xs text-muted-foreground">
+            Showing {items.length} emails
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleFetchMore}
+            disabled={isLoadingMore || !hasMore}
+            className="w-full max-w-xs text-xs flex items-center justify-center gap-2"
+          >
+            {isLoadingMore ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Fetching more emails...</span>
+              </>
+            ) : hasMore ? (
+              <>
+                <ArrowDown className="h-3.5 w-3.5" />
+                <span>Fetch More Emails</span>
+              </>
+            ) : (
+              <span>All emails loaded</span>
+            )}
+          </Button>
+        </div>
       </div>
     </ScrollArea>
   );
