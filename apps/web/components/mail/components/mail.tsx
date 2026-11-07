@@ -14,6 +14,7 @@ import {
   MessagesSquare,
   Newspaper,
   Pencil,
+  Sparkles,
   Plus,
   Send,
   ShoppingCart,
@@ -42,6 +43,7 @@ import useSWR from "swr";
 import {
   configAtom,
   openComposeAtom,
+  openAskAiAtom,
   openCreateWorkspaceOpenAtom,
   tabAtom,
   threadsAtom,
@@ -127,6 +129,7 @@ export function Mail({
   const [isUploading, setIsUploading] = React.useState(false);
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const setOpenAskAi = useSetAtom(openAskAiAtom);
   const [stateThreadsData, setStateThreadsData] = useAtom(threadsAtom);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useAtom(
     openCreateWorkspaceOpenAtom,
@@ -453,6 +456,28 @@ export function Mail({
                         Compose
                       </TooltipContent>
                     </Tooltip>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setOpenAskAi(true);
+                          }}
+                          size={"icon"}
+                          variant={"outline"}
+                          className="border-sky-400/50 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 dark:border-sky-500/40 dark:bg-sky-950/40 dark:text-sky-300"
+                        >
+                          <Sparkles className="h-4 w-4 animate-pulse text-sky-500" />
+                          <span className="sr-only">Ask AI</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="flex items-center gap-4"
+                      >
+                        Ask AI
+                      </TooltipContent>
+                    </Tooltip>
                   ) : (
                     <div className="p-4">
                       <Button
@@ -463,6 +488,17 @@ export function Mail({
                       >
                         <Pencil className="mr-2 h-4 w-4" />
                         Compose
+                      </Button>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setOpenAskAi(true);
+                        }}
+                        variant="outline"
+                        className="border-sky-400/50 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 dark:border-sky-500/40 dark:bg-sky-950/40 dark:text-sky-300"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4 text-sky-500 animate-pulse" />
+                        Ask AI
                       </Button>
                     </div>
                   )}
