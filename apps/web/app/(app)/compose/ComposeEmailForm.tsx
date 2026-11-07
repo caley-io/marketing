@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import useSWR from "swr";
 import { Button } from "@/components/Button";
@@ -11,11 +11,20 @@ import { ContactsResponse } from "@/app/api/google/contacts/route";
 import { Combobox } from "@/components/Combobox";
 import { SendEmailBody, SendEmailResponse } from "@/utils/gmail/mail";
 import { postRequest } from "@/utils/api";
-import { openComposeAtom } from "@/utils/store";
-import { useAtom } from "jotai";
+import {
+  openComposeAtom,
+  calendarSidebarOpenAtom,
+  calendarTargetDateAtom,
+} from "@/utils/store";
+import { useAtom, useSetAtom } from "jotai";
 import { toast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { Sparkle } from "lucide-react";
+import { Calendar, Clock, PlusCircle } from "lucide-react";
+import {
+  extractDateEntities,
+  generateAvailabilitySnippet,
+  type DateEntity,
+} from "@/utils/dateNlu";
 
 export const ComposeEmailForm = () => {
   const {
@@ -27,6 +36,25 @@ export const ComposeEmailForm = () => {
   } = useForm<SendEmailBody>();
 
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const setCalendarOpen = useSetAtom(calendarSidebarOpenAtom);
+  const setCalendarTargetDate = useSetAtom(calendarTargetDateAtom);
+
+  const messageText = watch("messageText") || "";
+  const detectedDates = useMemo(() => {
+    return extractDateEntities(messageText);
+  }, [messageText]);
+
+  const handleOpenCalendarForDate = (entity: DateEntity) => {
+    setCalendarTargetDate(entity.targetDate);
+    setCalendarOpen(true);
+  };
+
+  const handleInsertAvailability = (entity: DateEntity) => {
+    const snippet = generateAvailabilitySnippet(entity.targetDate);
+    const current = watch("messageText") || "";
+    const updated = current ? `${current}\n\n${snippet}` : snippet;
+    setValue("messageText", updated, { shouldValidate: true, shouldDirty: true });
+  };
 
   const onSubmit: SubmitHandler<SendEmailBody> = useCallback(
     async (data) => {
@@ -109,6 +137,7 @@ export const ComposeEmailForm = () => {
         registerProps={register("subject", { required: true })}
         error={errors.subject}
       />
+
       <Input
         type="text"
         as="textarea"
@@ -118,6 +147,57 @@ export const ComposeEmailForm = () => {
         registerProps={register("messageText", { required: true })}
         error={errors.messageText}
       />
+
+      {/* Natural Language Date Understanding & Calendar Availability bar */}
+      {detectedDates.length > 0 && (
+        <div className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-3 space-y-2 animate-in fade-in">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" />
+              Dates detected in message ({detectedDates.length})
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              Click to inspect availability or insert times
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {detectedDates.map((entity, i) => (
+              <div
+                key={`${entity.targetDate}-${i}`}
+                className="flex items-center gap-1.5 bg-background border rounded-md px-2.5 py-1 text-xs shadow-sm hover:border-sky-500/70 transition-colors"
+              >
+                <span className="font-semibold text-foreground">
+                  &ldquo;{entity.text}&rdquo;
+                </span>
+                <span className="text-muted-foreground">
+                  ({entity.formattedDisplay})
+                </span>
+                <div className="flex items-center gap-1.5 ml-1 border-l pl-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCalendarForDate(entity)}
+                    className="text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium text-[11px] underline underline-offset-2 flex items-center gap-1"
+                  >
+                    <Clock className="h-3 w-3" />
+                    Check schedule
+                  </button>
+                  <span className="text-muted-foreground/30">|</span>
+                  <button
+                    type="button"
+                    onClick={() => handleInsertAvailability(entity)}
+                    className="text-muted-foreground hover:text-foreground text-[11px] flex items-center gap-0.5"
+                    title="Insert availability template into message"
+                  >
+                    <PlusCircle className="h-3 w-3" />
+                    Insert times
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Button type="submit" loading={isSubmitting}>
         Send
