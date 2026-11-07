@@ -16,6 +16,7 @@ import { useAtom } from "jotai";
 import { toast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Sparkle } from "lucide-react";
+import { AIWritingAssistant } from "@/components/mail/components/AIWritingAssistant";
 
 export const ComposeEmailForm = () => {
   const {
@@ -27,6 +28,7 @@ export const ComposeEmailForm = () => {
   } = useForm<SendEmailBody>();
 
   const [composeOpen, setComposeOpen] = useAtom(openComposeAtom);
+  const currentMessageText = watch("messageText") || "";
 
   const onSubmit: SubmitHandler<SendEmailBody> = useCallback(
     async (data) => {
@@ -109,15 +111,29 @@ export const ComposeEmailForm = () => {
         registerProps={register("subject", { required: true })}
         error={errors.subject}
       />
-      <Input
-        type="text"
-        as="textarea"
-        rows={6}
-        name="message"
-        label="Message"
-        registerProps={register("messageText", { required: true })}
-        error={errors.messageText}
-      />
+
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <Label name="messageText" label="Message" />
+          <AIWritingAssistant
+            currentText={currentMessageText}
+            onUpdateText={(newText) => {
+              setValue("messageText", newText, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }}
+          />
+        </div>
+        <Input
+          type="text"
+          as="textarea"
+          rows={6}
+          name="messageText"
+          registerProps={register("messageText", { required: true })}
+          error={errors.messageText}
+        />
+      </div>
 
       <Button type="submit" loading={isSubmitting}>
         Send
