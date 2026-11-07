@@ -11,13 +11,49 @@ import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { GMailThread } from "@/utils/gmail/types";
 import { DataDisplayComponent } from "@/components/mail/components/mail";
 import { useAtomValue } from "jotai";
-import { configAtom } from "@/utils/store";
+import { configAtom, selectedAccountEmailAtom } from "@/utils/store";
+import { parseSearchQuery, matchThreadQuery, SearchableThread } from "@/utils/fullSearch";
 import KanbanBoard from "@/components/kanban/components/KanbanBoard";
 
 export function Inbox({ data, isLoading, error, defaultLayout }: any) {
   const mail = useAtomValue(configAtom);
 
   const [viewType, setViewType] = React.useState<"list" | "kanban">("list");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const selectedAccountEmail = useAtomValue(selectedAccountEmailAtom);
+
+  const filteredThreads = React.useMemo(() => {
+    if (!data?.threads || !Array.isArray(data.threads)) return [];
+    let list: any[] = data.threads;
+
+    // Filter by selected account if not 'all'
+    if (selectedAccountEmail && selectedAccountEmail !== "all") {
+      list = list.filter((t: any) => {
+        const msg = t.messages?.[0];
+        const acc = t.accountEmail || msg?.email || "";
+        return !acc || acc.toLowerCase().includes(selectedAccountEmail.toLowerCase());
+      });
+    }
+
+    if (!searchQuery.trim()) return list;
+
+    const parsed = parseSearchQuery(searchQuery);
+    return list.filter((t: any) => {
+      const searchable: SearchableThread = {
+        id: t.id,
+        accountEmail: t.accountEmail || t.messages?.[0]?.email || "",
+        accountLabel: t.accountLabel || "",
+        messages: t.messages || [],
+        snippet: t.snippet || "",
+      };
+      return matchThreadQuery(searchable, parsed).matches;
+    });
+  }, [data?.threads, searchQuery, selectedAccountEmail]);
+
+  const displayData = React.useMemo(() => ({
+    ...data,
+    threads: filteredThreads,
+  }), [data, filteredThreads]);
 
   if (isLoading) {
     return (
@@ -123,7 +159,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
                     <form>
                       <div className="relative">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search" className="pl-8" />
+                        <Input placeholder="Full search: all accounts, from:, to:, subject:..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8" />
                       </div>
                     </form>
                   </div>
@@ -131,7 +167,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
                     <DataDisplayComponent
                       isLoading={isLoading}
                       error={error}
-                      data={data}
+                      data={displayData}
                       renderContent={(data) => (
                         <MailList items={data.threads} />
                       )}
@@ -141,7 +177,7 @@ export function Inbox({ data, isLoading, error, defaultLayout }: any) {
                     <DataDisplayComponent
                       isLoading={isLoading}
                       error={error}
-                      data={data}
+                      data={displayData}
                       renderContent={(data) => (
                         <MailList
                           items={data.threads.filter(
