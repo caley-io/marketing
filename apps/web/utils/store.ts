@@ -17,6 +17,7 @@ export type Tab = {
 };
 
 export type Tabs =
+  | "Today"
   | "Inbox"
   | "Newsletters"
   | "Analytics"
@@ -27,7 +28,6 @@ export type Tabs =
   | "Calendar"
   | "VIP"
   | "Sent"
-  | "Drafts"
   | "Trash"
   | "Archive";
 
@@ -36,7 +36,7 @@ export const configAtom = atom<Config>({
   selected: null,
 });
 
-export const tabAtom = atom<Tabs>("Inbox");
+export const tabAtom = atom<Tabs>("Today");
 
 export const focusedThreadAtom = atom<GMailThread | null>(null);
 

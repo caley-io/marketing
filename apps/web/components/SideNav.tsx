@@ -15,12 +15,18 @@ import {
   RibbonIcon,
   SparklesIcon,
   StarIcon,
+  SunIcon,
   Users2Icon,
   XIcon,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export const navigation = [
+  {
+    name: "Today",
+    href: "/today",
+    icon: SunIcon,
+  },
   {
     name: "Newsletters",
     href: "/newsletters",
